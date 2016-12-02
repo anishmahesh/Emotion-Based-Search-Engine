@@ -207,6 +207,7 @@ public class SearchEngine {
     InetSocketAddress addr = new InetSocketAddress(SearchEngine.PORT);
     HttpServer server = HttpServer.create(addr, -1);
     server.createContext("/", handler);
+    server.createContext("/static", new StaticFileServer());
     server.setExecutor(Executors.newCachedThreadPool());
     server.start();
     System.out.println(
