@@ -43,6 +43,7 @@ public class HTMLOutputFormatter {
                 "\n" +
                 "    <!-- Custom CSS -->\n" +
                 "    <link href=\"static/css/card.css\" rel=\"stylesheet\">\n" +
+                "    <link href=\"static/css/emobtn.css\" rel=\"stylesheet\">\n" +
                 "    \n" +
                 "    <!-- Bootstrap Core CSS -->\n" +
                 "    <link href=\"static/css/bootstrap.min.css\" rel=\"stylesheet\">\n" +
@@ -114,8 +115,20 @@ public class HTMLOutputFormatter {
                 "            <div class=\"box\">\n" +
                 "                <div class=\"container-4 .col-xs-12 .col-md-6\">\n" +
                 "                    <input type=\"search\" id=\"searchBar\" placeholder=\"Search...\" />\n" +
-                "                    <button class=\"icon\" id=\"submitSearch\"><i class=\"fa fa-search\"></i></button>\n" +
+                "                       <div class=\"facebook-reaction\"><!-- container div for reaction system --> \n" +
+                "                           <span class=\"like-btn\"> <!-- Default like button --> \n" +
+                "                           <span class=\"fa like-btn-emo fa-thumbs-o-up\"></span> <!-- Default like button emotion--> \n" +
+                "                           <ul class=\"reactions-box\">\n" +
+                "                           <!-- Reaction buttons container-->\n" +
+                "                               <li class=\"reaction reaction-haha\" data-reaction=\"HaHa\"></li>\n" +
+                "                               <li class=\"reaction reaction-wow\" data-reaction=\"Wow\"></li>\n" +
+                "                               <li class=\"reaction reaction-sad\" data-reaction=\"Sad\"></li>\n" +
+                "                               <li class=\"reaction reaction-angry\" data-reaction=\"Angry\"></li>\n" +
+                "                    </ul>\n" +
+                "                    </span>\n" +
                 "                </div>\n" +
+                "                    <button class=\"icon\" id=\"submitSearch\"><i class=\"fa fa-search\"></i>" +
+                "                    </button>\n" +
                 "                <div style=\"padding-bottom:5px\">\n" +
                 "                </div>\n" +
                 "            </div>\n" +
@@ -139,6 +152,7 @@ public class HTMLOutputFormatter {
                 "\n" +
                 "    <!-- jQuery -->\n" +
                 "    <script src=\"static/js/jquery.js\"></script>\n" +
+                "    <script src=\"static/js/emobtn.js\"></script>\n" +
                 "\n" +
                 "    <!-- Bootstrap Core JavaScript -->\n" +
                 "    <script src=\"static/js/bootstrap.min.js\"></script>\n" +
