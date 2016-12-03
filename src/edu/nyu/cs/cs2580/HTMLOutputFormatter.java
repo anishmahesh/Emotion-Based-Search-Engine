@@ -6,12 +6,14 @@ package edu.nyu.cs.cs2580;
 
 public class HTMLOutputFormatter {
 
-    public String getSearchResultRow(String title,String startingText,int numViews,Double score,int docId){
+    public String getSearchResultRow(String title,String startingText,int numViews,Double score,int docId,String url){
         String row = new String("<div class=\"row\">\n" +
                 "                        <div class=\".col-xs-12 .col-md-6\">\n" +
                 "                            <div class=\"card\">\n" +
                 "                                <div class=\"top-buffer\"></div>\n" +
+                "<a href=\"" +url+"\">\n"+
                 "                                <span class=\"card-title\">"+title+"</span>\n" +
+                "</a>"+
                 "                                <div class=\"card-content\">\n" +
                 "                                    <p> "+startingText+"</p>\n" +
                 "                                </div>\n" +
