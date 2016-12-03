@@ -34,7 +34,6 @@ class QueryHandler implements HttpHandler {
 
     // The type of the ranker we will be using.
     public enum RankerType {
-      NONE,
       FULLSCAN,
       CONJUNCTIVE,
       FAVORITE,
@@ -44,7 +43,15 @@ class QueryHandler implements HttpHandler {
       LINEAR,
       COMPREHENSIVE
     }
-    public RankerType _rankerType = RankerType.NONE;
+    public RankerType _rankerType = RankerType.FAVORITE;
+
+    public enum EmotionType {
+      FUNNY,
+      SAD,
+      JOY,
+    }
+
+    public EmotionType _emotionType = EmotionType.FUNNY;
 
     // The output format.
     public enum OutputFormat {
@@ -79,6 +86,12 @@ class QueryHandler implements HttpHandler {
         } else if (key.equals("format")) {
           try {
             _outputFormat = OutputFormat.valueOf(val.toUpperCase());
+          } catch (IllegalArgumentException e) {
+            // Ignored, search engine should never fail upon invalid user input.
+          }
+        } else if ( key.toLowerCase().equals("emotion")){
+          try {
+            _emotionType = EmotionType.valueOf(val.toUpperCase());
           } catch (IllegalArgumentException e) {
             // Ignored, search engine should never fail upon invalid user input.
           }
@@ -172,12 +185,12 @@ class QueryHandler implements HttpHandler {
       QueryPhrase processedQuery = new QueryPhrase(cgiArgs._query);
       processedQuery.processQuery();
       scoredDocs =
-              ranker.runQuery(processedQuery, cgiArgs._numResults);
+              ranker.runQuery(processedQuery, cgiArgs._numResults, cgiArgs._emotionType.toString());
     } else {
       Query processedQuery = new Query(cgiArgs._query);
       processedQuery.processQuery();
       scoredDocs =
-              ranker.runQuery(processedQuery, cgiArgs._numResults);
+              ranker.runQuery(processedQuery, cgiArgs._numResults, cgiArgs._emotionType.toString());
     }
 
 

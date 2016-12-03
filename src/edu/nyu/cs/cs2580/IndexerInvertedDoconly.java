@@ -316,7 +316,7 @@ public class IndexerInvertedDoconly extends Indexer implements Serializable {
    * In HW2, you should be using {@link DocumentIndexed}
    */
   @Override
-  public Document nextDoc(Query query, int docid) {
+  public Document nextDoc(Query query, int docid, String emotionType) {
     List<Integer> idArray = new ArrayList<>();
     int maxId = -1;
     int sameDocId = -1;
@@ -345,7 +345,7 @@ public class IndexerInvertedDoconly extends Indexer implements Serializable {
     if(allQueryTermsInSameDoc){
       return _documents.get(sameDocId);
     }
-    return nextDoc(query, maxId-1);
+    return nextDoc(query, maxId-1, emotionType);
   }
 
   private void loadTermIfNotLoaded(String term) {

@@ -532,16 +532,16 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
    * In HW2, you should be using {@link DocumentIndexed}.
    */
   @Override
-  public Document nextDoc(Query query, int docid) {
+  public Document nextDoc(Query query, int docid, String emotionType) {
 
     if(query instanceof QueryPhrase){
-      return nextDocPhrase((QueryPhrase) query, docid);
+      return nextDocPhrase((QueryPhrase) query, docid, emotionType);
     } else {
-      return nextDocIndividualTokens(query._tokens, docid);
+      return nextDocIndividualTokens(query._tokens, docid, emotionType);
     }
   }
 
-  public Document nextDocIndividualTokens(Vector<String> queryTokens, int docid) {
+  public Document nextDocIndividualTokens(Vector<String> queryTokens, int docid, String emotionType) {
     while (true) {
       List<Integer> idArray = new ArrayList<>();
       int maxId = -1;
@@ -575,7 +575,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     }
   }
 
-  public Document nextDocPhrase(QueryPhrase query, int docid){
+  public Document nextDocPhrase(QueryPhrase query, int docid, String emotionType){
     List<Integer> idArray = new ArrayList<>();
     int maxId = -1;
     int sameDocId = -1;
@@ -589,7 +589,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     }
 
     for (Vector<String> phraseTerms : query._phraseTokens) {
-      idArray.add(nextForPhrase(phraseTerms, docid));
+      idArray.add(nextForPhrase(phraseTerms, docid, emotionType));
     }
 
     for(int id : idArray){
@@ -609,11 +609,11 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     if(allQueryTermsInSameDoc){
       return _documents.get(sameDocId);
     }
-    return nextDocPhrase(query, maxId-1);
+    return nextDocPhrase(query, maxId-1, emotionType);
   }
 
-  private int nextForPhrase(Vector<String> phraseTerms, int docid) {
-    Document docForPhrase = nextDocIndividualTokens(phraseTerms, docid);
+  private int nextForPhrase(Vector<String> phraseTerms, int docid, String emotionType) {
+    Document docForPhrase = nextDocIndividualTokens(phraseTerms, docid, emotionType);
     if (docForPhrase == null) {
       return -1;
     }
@@ -633,7 +633,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
       }
     }
 
-    return nextForPhrase(phraseTerms, docForPhrase._docid);
+    return nextForPhrase(phraseTerms, docForPhrase._docid, emotionType);
   }
 
   private Map<String, Vector<Integer>> getTermPositionMapForDoc(Vector<String> phraseTerms, int docForPhrase) {
