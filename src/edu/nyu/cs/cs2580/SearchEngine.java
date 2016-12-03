@@ -219,7 +219,7 @@ public class SearchEngine {
       SearchEngine.parseCommandLine(args);
       switch (SearchEngine.MODE) {
       case MINING:
-        startMining();
+        //startMining();
         break;
       case INDEX:
         startIndexing();

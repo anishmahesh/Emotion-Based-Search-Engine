@@ -245,8 +245,8 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
       directory.mkdir();
     }
 
-    Map<String, Double> numViews = (Map<String, Double>) _logMiner.load();
-    Map<String, Double> pageRanks = (Map<String, Double>) _corpusAnalyzer.load();
+    //Map<String, Double> numViews = (Map<String, Double>) _logMiner.load();
+    //Map<String, Double> pageRanks = (Map<String, Double>) _corpusAnalyzer.load();
     int fileNum = 0;
 
     for (File file : fileNames) {
@@ -261,12 +261,12 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
 
           doc.setTitle(htmlDocument.getTitle());
           doc.setUrl(htmlDocument.getUrl());
-          int currNumViews = numViews.get(file.getName()).intValue();
-          maxNumViews = currNumViews > maxNumViews ? currNumViews : maxNumViews;
-          doc.setNumViews(currNumViews);
-          float currPageRank = pageRanks.get(file.getName()).floatValue();
-          maxPageRank = currPageRank > maxPageRank ? currPageRank : maxPageRank;
-          doc.setPageRank(currPageRank);
+          //int currNumViews = numViews.get(file.getName()).intValue();
+          //maxNumViews = currNumViews > maxNumViews ? currNumViews : maxNumViews;
+          //doc.setNumViews(currNumViews);
+          //float currPageRank = pageRanks.get(file.getName()).floatValue();
+          //maxPageRank = currPageRank > maxPageRank ? currPageRank : maxPageRank;
+          //doc.setPageRank(currPageRank);
           _documents.add(doc);
           ++_numDocs;
 
