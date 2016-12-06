@@ -61,8 +61,6 @@ public abstract class Ranker {
     public static Ranker getRankerByArguments(CgiArguments arguments,
         Options options, Indexer indexer) {
       switch (arguments._rankerType) {
-      case FULLSCAN:
-        return new RankerFullScan(options, arguments, indexer);
       case CONJUNCTIVE:
         return new RankerConjunctive(options, arguments, indexer);
       case FAVORITE:

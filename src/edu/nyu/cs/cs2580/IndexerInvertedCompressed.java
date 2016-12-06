@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
 
+import edu.nyu.cs.cs2580.QueryHandler.CgiArguments.EmotionType;
 import edu.nyu.cs.cs2580.SearchEngine.Options;
 
 /**
@@ -27,12 +28,20 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
   public Vector<String> _terms = new Vector<String>();
 
   // Stores all Document in memory.
-  private Vector<Document> _documents = new Vector<Document>();
+  private Vector<DocumentIndexed> _documents = new Vector<DocumentIndexed>();
 
   private Map<Integer, Vector<Integer>> _postings = new HashMap<>();
 
+  private Map<Integer, Vector<Integer>> _joyPostings = new HashMap<>();
+  private Map<Integer, Vector<Integer>> _sadPostings = new HashMap<>();
+  private Map<Integer, Vector<Integer>> _funnyPostings = new HashMap<>();
+
   //Stores the index of each docid in posting list in sorted order(acc to doc ids)
   private Map<Integer,Vector<Integer>> _skipList = new HashMap<>();
+
+  private Map<Integer,Vector<Integer>> _joySkipList = new HashMap<>();
+  private Map<Integer,Vector<Integer>> _sadSkipList = new HashMap<>();
+  private Map<Integer,Vector<Integer>> _funnySkipList = new HashMap<>();
 
   public IndexerInvertedCompressed() {
   }
@@ -49,7 +58,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
 
     deleteExistingFile(indexDir);
 
-    processFiles(corpusDir);
+    processDocFiles(corpusDir, indexDir);
 
     System.out.println("Created partial indexes. Now merging them");
 
@@ -125,10 +134,19 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
 
   public void compressMergedFiles(String dir) throws IOException {
 
+    String joyDir = dir + "/joy";
+    String sadDir = dir + "/sad";
+    File joyDirectory = new File(joyDir);
+    File sadDirectory = new File(sadDir);
+
+    if (!joyDirectory.exists()) joyDirectory.mkdir();
+    if (!sadDirectory.exists()) sadDirectory.mkdir();
+
     for (int part = 0; part <= partCount; part++) {
-      File file = new File(dir + "/index-part-" + part + ".tsv");
+      File file = new File(dir + "/phase1/index-part-" + part + ".tsv");
       if (file.isFile() && !file.isHidden() && !file.getName().toLowerCase().contains("object.idx")) {
-        OutputStream os = new FileOutputStream(dir + "/index-comp-part-"+ part +".tsv", true);
+        OutputStream osjoy = new FileOutputStream(joyDir + "/index-comp-part-"+ part +".tsv", true);
+        OutputStream osSad = new FileOutputStream(sadDir + "/index-comp-part-"+ part +".tsv", true);
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
           String line;
           while ((line = br.readLine()) != null) {
@@ -141,7 +159,8 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
               bArr1[i] = bytes1.get(i);
             }
 
-            os.write(bArr1);
+            osjoy.write(bArr1);
+            osSad.write(bArr1);
 
             line = br.readLine();
             List<String> strings = stringTokenizer(line);
@@ -154,36 +173,45 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
               bArr2[i] = bytes2.get(i);
             }
 
-            os.write(bArr2);
+            osjoy.write(bArr2);
+            osSad.write(bArr2);
 
-            Vector<Integer> post = new Vector<>();
+            Vector<Integer> joyPost = new Vector<>();
+            Vector<Integer> sadPost = new Vector<>();
+            Map<Integer, Vector<Integer>> docToOccs = new HashMap<>();
+            Vector<Integer> docIds = new Vector<>();
 
-            int docIdPos = 0;
-            int lastDocId = 0;
-            int lastOcc = 0;
-            int num;
-            for (int i = 0; i < strings.size(); i++) {
-              String word = strings.get(i);
-              int scn = Integer.parseInt(word);
+            int idx = 0;
+            while (idx < strings.size()) {
+              String word = strings.get(idx);
+              int did = Integer.parseInt(word);
+              int occ = Integer.parseInt(strings.get(idx+1));
+              Vector<Integer> postList = new Vector<>();
 
-              if (i == docIdPos) {
-                num = scn - lastDocId;
-                lastDocId = scn;
-                lastOcc = 0;
+              for (int j = idx+1; j < idx + occ + 2; j++) {
+                postList.add(Integer.parseInt(strings.get(j)));
               }
-              else if (i == docIdPos + 1) {
-                num = scn;
-                docIdPos += scn + 2;
-              }
-              else {
-                num = scn - lastOcc;
-                lastOcc = scn;
-              }
+              docToOccs.put(did, postList);
+              docIds.add(did);
 
-              post.add(num);
+              idx += occ + 2;
             }
 
-            Vector<Byte> bytes3 = IndexCompressor.vByteEncoder(post);
+            Collections.sort(docIds, Collections.reverseOrder(new joyComparator()));
+
+            for (Integer docId : docIds) {
+              joyPost.add(docId);
+              joyPost.addAll(docToOccs.get(docId));
+            }
+
+            Collections.sort(docIds, Collections.reverseOrder(new SadComparator()));
+
+            for (Integer docId : docIds) {
+              sadPost.add(docId);
+              sadPost.addAll(docToOccs.get(docId));
+            }
+
+            Vector<Byte> bytes3 = IndexCompressor.vByteEncoder(joyPost);
 
             byte[] bArr3 = new byte[bytes3.size()];
 
@@ -191,7 +219,17 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
               bArr3[i] = bytes3.get(i);
             }
 
-            os.write(bArr3);
+            osjoy.write(bArr3);
+
+            bytes3 = IndexCompressor.vByteEncoder(sadPost);
+
+            bArr3 = new byte[bytes3.size()];
+
+            for (int i = 0 ; i < bArr3.length; i++) {
+              bArr3[i] = bytes3.get(i);
+            }
+
+            osSad.write(bArr3);
           }
         } catch (FileNotFoundException e) {
           e.printStackTrace();
@@ -199,7 +237,8 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
           e.printStackTrace();
         }
 
-        os.close();
+        osjoy.close();
+        osSad.close();
       } else if (file.isDirectory()) {
         //not recursively going inside a directory
         continue;
@@ -208,6 +247,26 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
       file.delete();
     }
 
+  }
+
+  class joyComparator implements Comparator<Integer> {
+
+    @Override
+    public int compare(Integer docId1, Integer docId2) {
+      if (_documents.get(docId1).getJoy() >= _documents.get(docId2).getJoy())
+        return 1;
+      else return -1;
+    }
+  }
+
+  class SadComparator implements Comparator<Integer> {
+
+    @Override
+    public int compare(Integer docId1, Integer docId2) {
+      if (_documents.get(docId1).getSadness() >= _documents.get(docId2).getSadness())
+        return 1;
+      else return -1;
+    }
   }
 
   private void writeIndexerObjectToFile() throws IOException {
@@ -221,19 +280,82 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
 
   private void deleteExistingFile(String indexDir) {
     for(File file: new File(indexDir).listFiles()) {
-      if(!file.getName().toLowerCase().contains("numviews.tsv")&&!file.getName().toLowerCase().contains("pagerank.tsv")){
-        if (file.isDirectory()) {
-          for (File subFile : file.listFiles()) {
-            subFile.delete();
-          }
+      if (file.isDirectory()) {
+        for (File subFile : file.listFiles()) {
+          subFile.delete();
         }
-        file.delete();
       }
+      file.delete();
+      }
+  }
+
+  private void processDocFiles(String corpusDir, String indexDir) throws IOException {
+
+    String indexPath = indexDir + "/phase1";
+    File indexDirectory = new File(indexPath);
+
+    if (!indexDirectory.exists()) {
+      indexDirectory.mkdir();
     }
+
+    String emotionsFile = corpusDir + "/emotions.tsv";
+    BufferedReader docReader = new BufferedReader(new FileReader(emotionsFile));
+
+    String docsDir = indexDir + "/Documents";
+    File docDirectory = new File(docsDir);
+
+    if (!docDirectory.exists()) {
+      docDirectory.mkdir();
+    }
+
+    int fileNum = 0;
+
+    String line;
+    while ((line = docReader.readLine()) != null) {
+      List<String> cols = stringTokenizer(line);
+
+      String docPath = corpusDir + "/corpus/" + cols.get(0) + ".txt";
+
+      File docFile = new File(docPath);
+
+      DocumentIndexed doc = new DocumentIndexed(_numDocs);
+      ++_numDocs;
+
+      DocTextFields docTextFields = getDocTextFields(docFile);
+
+
+      doc.setTitle(docTextFields.title);
+      doc.setUrl(docTextFields.url);
+
+      doc.setAnger(Double.parseDouble(cols.get(1)));
+      doc.setDisgust(Double.parseDouble(cols.get(2)));
+      doc.setFear(Double.parseDouble(cols.get(3)));
+      doc.setJoy(Double.parseDouble(cols.get(4)));
+      doc.setSadness(Double.parseDouble(cols.get(5)));
+
+      processDocument(docTextFields.bodyText, doc);
+
+      _documents.add(doc);
+
+      if (fileNum == FILE_COUNT_FOR_INDEX_SPLIT) {
+        indexCount++;
+        System.out.println("Constructing partial index number: " + indexCount);
+
+        persistToFile(indexCount, indexPath);
+        fileNum = 0;
+      }
+
+      fileNum++;
+    }
+
+    indexCount++;
+    System.out.println("Constructing partial index number: " + indexCount);
+    persistToFile(indexCount, indexPath);
   }
 
   private void processFiles(String dir) throws IOException {
-    System.out.println("Inside Directory : "+dir);
+    String indexPath = _options._indexPrefix;
+    System.out.println("Inside Directory : "+ dir);
     File[] fileNames = new File(dir).listFiles();
     System.out.println("Construct index from: " + dir);
     HTMLParse htmlParse = new HTMLParse();
@@ -274,7 +396,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
             indexCount++;
             System.out.println("Constructing partial index number: " + indexCount);
 
-            persistToFile(indexCount);
+            persistToFile(indexCount, indexPath);
             fileNum = 0;
           }
 
@@ -296,14 +418,14 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
 
     indexCount++;
     System.out.println("Constructing partial index number: " + indexCount);
-    persistToFile(indexCount);
+    persistToFile(indexCount, indexPath);
   }
 
   private void splitIndexFile() throws IOException {
-    String indexFile = _options._indexPrefix + "/corpus.tsv";
+    String indexFile = _options._indexPrefix + "/phase1/corpus.tsv";
     BufferedReader reader = new BufferedReader(new FileReader(indexFile));
 
-    String partFile = _options._indexPrefix + "/index-part-0.tsv";
+    String partFile = _options._indexPrefix + "/phase1/index-part-0.tsv";
     BufferedWriter writer = new BufferedWriter(new FileWriter(partFile, true));
 
     int count = -1;
@@ -315,7 +437,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
         count = 0;
         partCount++;
         writer.close();
-        partFile = _options._indexPrefix + "/index-part-" + partCount + ".tsv";
+        partFile = _options._indexPrefix + "/phase1/index-part-" + partCount + ".tsv";
         writer = new BufferedWriter(new FileWriter(partFile, true));
         writer.flush();
       }
@@ -334,8 +456,8 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
   }
 
   private void mergeIndex() throws IOException {
-    String indexFile = _options._indexPrefix + "/corpus.tsv";
-    String firstFile = _options._indexPrefix + "/tempIndex1.tsv";
+    String indexFile = _options._indexPrefix + "/phase1/corpus.tsv";
+    String firstFile = _options._indexPrefix + "/phase1/tempIndex1.tsv";
 
     File index = new File(indexFile);
     File first = new File(firstFile);
@@ -345,7 +467,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     }
 
     for (int i = 2; i <= indexCount; i++) {
-      String secondFile = _options._indexPrefix + "/tempIndex" + i + ".tsv";
+      String secondFile = _options._indexPrefix + "/phase1/tempIndex" + i + ".tsv";
 
       File second = new File(secondFile);
 
@@ -360,7 +482,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
   }
 
   private File mergeFiles(File first, File second) throws IOException {
-    String tempFile = _options._indexPrefix + "/temp.tsv";
+    String tempFile = _options._indexPrefix + "/phase1/temp.tsv";
 
     File temp = new File(tempFile);
     BufferedWriter writer = new BufferedWriter(new FileWriter(temp, true));
@@ -416,8 +538,8 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     return temp;
   }
 
-  private void persistToFile(int index) throws IOException {
-    String indexFile = _options._indexPrefix + "/tempIndex" + index + ".tsv";
+  private void persistToFile(int index, String path) throws IOException {
+    String indexFile = path + "/tempIndex" + index + ".tsv";
     BufferedWriter writer = new BufferedWriter(new FileWriter(indexFile));
 
     List<Integer> termIds = new ArrayList<>();
@@ -532,16 +654,16 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
    * In HW2, you should be using {@link DocumentIndexed}.
    */
   @Override
-  public Document nextDoc(Query query, int docid, String emotionType) {
+  public Document nextDoc(Query query, int docid) {
 
     if(query instanceof QueryPhrase){
-      return nextDocPhrase((QueryPhrase) query, docid, emotionType);
+      return nextDocPhrase((QueryPhrase) query, docid, query._emotionType);
     } else {
-      return nextDocIndividualTokens(query._tokens, docid, emotionType);
+      return nextDocIndividualTokens(query._tokens, docid, query._emotionType);
     }
   }
 
-  public Document nextDocIndividualTokens(Vector<String> queryTokens, int docid, String emotionType) {
+  public Document nextDocIndividualTokens(Vector<String> queryTokens, int docid, EmotionType emotionType) {
     while (true) {
       List<Integer> idArray = new ArrayList<>();
       int maxId = -1;
@@ -551,8 +673,8 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
         if (!_dictionary.containsKey(term)) {
           return null;
         }
-        loadTermIfNotLoaded(term);
-        idArray.add(next(term,docid));
+        loadTermIfNotLoaded(term, emotionType);
+        idArray.add(next(term,docid, emotionType));
       }
       for(int id : idArray){
         if(id == -1){
@@ -575,7 +697,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     }
   }
 
-  public Document nextDocPhrase(QueryPhrase query, int docid, String emotionType){
+  public Document nextDocPhrase(QueryPhrase query, int docid, EmotionType emotionType){
     List<Integer> idArray = new ArrayList<>();
     int maxId = -1;
     int sameDocId = -1;
@@ -584,8 +706,8 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
       if (!_dictionary.containsKey(term)) {
         return null;
       }
-      loadTermIfNotLoaded(term);
-      idArray.add(next(term,docid));
+      loadTermIfNotLoaded(term, emotionType);
+      idArray.add(next(term,docid, emotionType));
     }
 
     for (Vector<String> phraseTerms : query._phraseTokens) {
@@ -612,13 +734,13 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     return nextDocPhrase(query, maxId-1, emotionType);
   }
 
-  private int nextForPhrase(Vector<String> phraseTerms, int docid, String emotionType) {
+  private int nextForPhrase(Vector<String> phraseTerms, int docid, EmotionType emotionType) {
     Document docForPhrase = nextDocIndividualTokens(phraseTerms, docid, emotionType);
     if (docForPhrase == null) {
       return -1;
     }
 
-    Map<String, Vector<Integer>> termPositionMap = getTermPositionMapForDoc(phraseTerms, docForPhrase._docid);
+    Map<String, Vector<Integer>> termPositionMap = getTermPositionMapForDoc(phraseTerms, docForPhrase._docid, emotionType);
 
     String firstTerm = phraseTerms.get(0);
     for (int firstPos : termPositionMap.get(firstTerm)) {
@@ -636,13 +758,13 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     return nextForPhrase(phraseTerms, docForPhrase._docid, emotionType);
   }
 
-  private Map<String, Vector<Integer>> getTermPositionMapForDoc(Vector<String> phraseTerms, int docForPhrase) {
+  private Map<String, Vector<Integer>> getTermPositionMapForDoc(Vector<String> phraseTerms, int docForPhrase, EmotionType emotionType) {
     Map<String, Vector<Integer>> termPosMap = new HashMap<>();
 
     Vector<Integer> posList = new Vector<>();
     for (String term : phraseTerms) {
-      int docPos = binarySearchResultIndex(term, docForPhrase - 1);
-      Vector<Integer> postingListforTerm = getPostingListforTerm(term);
+      int docPos = binarySearchResultIndex(term, docForPhrase - 1, emotionType);
+      Vector<Integer> postingListforTerm = getPostingListforTerm(term, emotionType);
       for (int i = 0 ; i < postingListforTerm.get(docPos + 1) ; i++) {
         posList.add(postingListforTerm.get(docPos + 2 + i));
       }
@@ -652,25 +774,25 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     return termPosMap;
   }
 
-  public int next(String queryTerm, int docid){
-    int binarySearchResultIndex = binarySearchResultIndex(queryTerm, docid);
+  public int next(String queryTerm, int docid, EmotionType emotionType){
+    int binarySearchResultIndex = binarySearchResultIndex(queryTerm, docid, emotionType);
     if (binarySearchResultIndex == -1)
       return -1;
 
-    return getPostingListforTerm(queryTerm).get(binarySearchResultIndex);
+    return getPostingListforTerm(queryTerm, emotionType).get(binarySearchResultIndex);
   }
 
-  private Vector<Integer> getPostingListforTerm(String term){
-    return _postings.get(_dictionary.get(term));
+  private Vector<Integer> getPostingListforTerm(String term, EmotionType emotionType){
+    return getPostingByEmotion(emotionType).get(_dictionary.get(term));
   }
 
-  private Vector<Integer> getSkipListforTerm(String term){
-    return _skipList.get(_dictionary.get(term));
+  private Vector<Integer> getSkipListforTerm(String term, EmotionType emotionType){
+    return getSkipListByEmotion(emotionType).get(_dictionary.get(term));
   }
 
-  private int binarySearchResultIndex(String term, int current){
-    Vector <Integer> PostingList = getPostingListforTerm(term);
-    Vector <Integer> SkipList = getSkipListforTerm(term);
+  private int binarySearchResultIndex(String term, int current, EmotionType emotionType){
+    Vector <Integer> PostingList = getPostingListforTerm(term, emotionType);
+    Vector <Integer> SkipList = getSkipListforTerm(term, emotionType);
     int lt = SkipList.size()-1;
     if(lt == 0 || PostingList.get(SkipList.get(lt)) <= current){
       return -1;
@@ -695,9 +817,9 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
   }
 
   @Override
-  public int corpusDocFrequencyByTerm(String term) {
-    loadTermIfNotLoaded(term);
-    Vector<Integer> PostingList = getPostingListforTerm(term);
+  public int corpusDocFrequencyByTerm(String term, EmotionType emotionType) {
+    loadTermIfNotLoaded(term, emotionType);
+    Vector<Integer> PostingList = getPostingListforTerm(term, emotionType);
     int corpusDocFrequencyByTerm = 0;
     for(int i=0; i< PostingList.size()-1;){
       corpusDocFrequencyByTerm++;
@@ -707,8 +829,8 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
   }
 
   @Override
-  public int corpusTermFrequency(String term) {
-    Vector<Integer> PostingList = getPostingListforTerm(term);
+  public int corpusTermFrequency(String term, EmotionType emotionType) {
+    Vector<Integer> PostingList = getPostingListforTerm(term, emotionType);
     int corpusTermFrequency = 0;
     for(int i=0; i< PostingList.size()-1;){
       corpusTermFrequency += PostingList.get(i+1);
@@ -721,8 +843,8 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
    * @CS2580: Implement this to work with your RankerFavorite.
    */
   @Override
-  public int documentTermFrequency(String term, int docid) {
-    Vector<Integer> PostingList = getPostingListforTerm(term);
+  public int documentTermFrequency(String term, int docid, EmotionType emotionType) {
+    Vector<Integer> PostingList = getPostingListforTerm(term, emotionType);
     for(int i=0; i< PostingList.size()-1;){
       if(docid == PostingList.get(i)){
         return  PostingList.get(i+1);
@@ -733,28 +855,33 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     return 0;
   }
 
-  private void loadTermIfNotLoaded(String term) {
-    if (!_postings.containsKey(_dictionary.get(term))) {
+  private void loadTermIfNotLoaded(String term, EmotionType emotionType) {
+    if (!getPostingByEmotion(emotionType).containsKey(_dictionary.get(term))) {
       try {
-        loadIndexOnFlyForTerm(term);
+        loadIndexOnFlyForTerm(term, emotionType);
       } catch (IOException | ClassNotFoundException e) {
         e.printStackTrace();
       }
     }
   }
 
-  private void loadIndexOnFlyForTerm(String term) throws IOException, ClassNotFoundException {
+  private void loadIndexOnFlyForTerm(String term, EmotionType emotionType) throws IOException, ClassNotFoundException {
     int termId = _dictionary.get(term);
-    loadMiniIndex(termId/TERM_COUNT_FOR_INDEX_SPLIT);
+    loadMiniIndex(termId/TERM_COUNT_FOR_INDEX_SPLIT, emotionType);
   }
 
-  private void loadMiniIndex(int indexNo) throws IOException {
+  private void loadMiniIndex(int indexNo, EmotionType emotionType) throws IOException {
 
-    File idxFolder = new File(_options._indexPrefix);
+    Map<Integer, Vector<Integer>> postingByEmotion = getPostingByEmotion(emotionType);
+    Map<Integer, Vector<Integer>> skipListByEmotion = getSkipListByEmotion(emotionType);
+
+    String idxDir = _options._indexPrefix + "/" + emotionType.name().toLowerCase();
+
+    File idxFolder = new File(idxDir);
     File[] indexFiles = idxFolder.listFiles();
 
     if (indexNo < indexFiles.length) {
-      String fileName = _options._indexPrefix + "/index-comp-part-" + indexNo + ".tsv";
+      String fileName = idxDir + "/index-comp-part-" + indexNo + ".tsv";
 
       byte[] bytes = Files.readAllBytes(new File(fileName).toPath());
 
@@ -776,30 +903,14 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
 
         Vector<Integer> termPostingList = new Vector<>();
 
-        int docIdPos = i+2;
-        int lastDocId = 0;
-        int lastOcc = 0;
         Integer num;
         int j;
         for (j = i+2; j < i+2+postingSize; j++) {
-
-          if (j == docIdPos) {
-            num = numbers.get(j) + lastDocId;
-            lastDocId = num;
-            lastOcc = 0;
-          }
-          else if (j == docIdPos + 1) {
-            num = numbers.get(j);
-            docIdPos += numbers.get(j) + 2;
-          }
-          else {
-            num = numbers.get(j) + lastOcc;
-            lastOcc = num;
-          }
+          num = numbers.get(j);
           termPostingList.add(num);
         }
 
-        _postings.put(termId, termPostingList);
+        postingByEmotion.put(termId, termPostingList);
 
         Vector<Integer> skipPtrs = new Vector<>();
         int k = 0;
@@ -808,10 +919,57 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
           k += termPostingList.get(k + 1) + 2;
         }
 
-        _skipList.put(termId, skipPtrs);
+        skipListByEmotion.put(termId, skipPtrs);
 
         i=j;
       }
+    }
+  }
+
+  private Map<Integer, Vector<Integer>> getPostingByEmotion(EmotionType emotionType) {
+    switch (emotionType) {
+      case JOY: return _joyPostings;
+      case SAD: return _sadPostings;
+      case FUNNY:
+      default: return _funnyPostings;
+    }
+  }
+
+  private Map<Integer, Vector<Integer>> getSkipListByEmotion(EmotionType emotionType) {
+    switch (emotionType) {
+      case JOY: return _joySkipList;
+      case SAD: return _sadSkipList;
+      case FUNNY:
+      default: return _funnySkipList;
+    }
+  }
+
+  private DocTextFields getDocTextFields(File doc) throws IOException {
+    BufferedReader br = new BufferedReader(new FileReader(doc));
+    String title = br.readLine();
+    String url = br.readLine();
+    String temp ;
+    StringBuilder bodyText = new StringBuilder();
+    while((temp = br.readLine()) != null){
+      bodyText.append("\n"+temp);
+    }
+    br.close();
+    String processedBodyText = TextProcessor.regexRemoval(bodyText.toString().toLowerCase());
+
+    DocTextFields dtf = new DocTextFields();
+    dtf.title = title;
+    dtf.url = url;
+    dtf.bodyText = processedBodyText;
+
+    return dtf;
+  }
+
+  class DocTextFields{
+    String title;
+    String url;
+    String bodyText;
+
+    public DocTextFields() {
     }
   }
 }

@@ -59,16 +59,16 @@ public class RankerComprehensive extends Ranker {
     double lambda = 0.5;
 
     for(String queryToken : query._tokens){
-      double termFrequency = _indexer.documentTermFrequency(queryToken,doc._docid);
-      double corpusTermFrequency = _indexer.corpusDocFrequencyByTerm(queryToken);
+      double termFrequency = _indexer.documentTermFrequency(queryToken,doc._docid, query._emotionType);
+      double corpusTermFrequency = _indexer.corpusDocFrequencyByTerm(queryToken, query._emotionType);
       queryLikelyhoodProbability *= (1-lambda)*(termFrequency/totalTermsInDoc)+(lambda)*(corpusTermFrequency/totalTermsInCourpus);
     }
 
     if (query instanceof QueryPhrase) {
       for (Vector<String> phraseTokens : ((QueryPhrase) query)._phraseTokens) {
         for(String queryToken : phraseTokens){
-          double termFrequency = _indexer.documentTermFrequency(queryToken,doc._docid);
-          double corpusTermFrequency = _indexer.corpusDocFrequencyByTerm(queryToken);
+          double termFrequency = _indexer.documentTermFrequency(queryToken,doc._docid, query._emotionType);
+          double corpusTermFrequency = _indexer.corpusDocFrequencyByTerm(queryToken, query._emotionType);
           queryLikelyhoodProbability *= (1-lambda)*(termFrequency/totalTermsInDoc)+(lambda)*(corpusTermFrequency/totalTermsInCourpus);
         }
       }

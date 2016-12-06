@@ -34,6 +34,7 @@ class QueryHandler implements HttpHandler {
 
     // The type of the ranker we will be using.
     public enum RankerType {
+      NONE,
       FULLSCAN,
       CONJUNCTIVE,
       FAVORITE,
@@ -182,15 +183,15 @@ class QueryHandler implements HttpHandler {
     Vector<ScoredDocument> scoredDocs = null;
     // Processing the query.
     if(cgiArgs._query.matches(".*?\".*\".*?")){
-      QueryPhrase processedQuery = new QueryPhrase(cgiArgs._query);
+      QueryPhrase processedQuery = new QueryPhrase(cgiArgs._query, cgiArgs._emotionType);
       processedQuery.processQuery();
       scoredDocs =
-              ranker.runQuery(processedQuery, cgiArgs._numResults, cgiArgs._emotionType.toString());
+              ranker.runQuery(processedQuery, cgiArgs._numResults);
     } else {
-      Query processedQuery = new Query(cgiArgs._query);
+      Query processedQuery = new Query(cgiArgs._query, cgiArgs._emotionType);
       processedQuery.processQuery();
       scoredDocs =
-              ranker.runQuery(processedQuery, cgiArgs._numResults, cgiArgs._emotionType.toString());
+              ranker.runQuery(processedQuery, cgiArgs._numResults);
     }
 
 

@@ -23,11 +23,11 @@ public class RankerFavorite extends Ranker {
   }
 
   @Override
-  public Vector<ScoredDocument> runQuery(Query query, int numResults, String emotionType) {
+  public Vector<ScoredDocument> runQuery(Query query, int numResults) {
     Queue<ScoredDocument> rankQueue = new PriorityQueue<ScoredDocument>();
     Document doc = null;
     int docid = -1;
-    while ((doc = _indexer.nextDoc(query, docid, emotionType)) != null) {
+    while ((doc = _indexer.nextDoc(query, docid)) != null) {
       rankQueue.add(scoreDocument(doc,query));
       if (rankQueue.size() > numResults) {
         rankQueue.poll();
@@ -56,16 +56,16 @@ public class RankerFavorite extends Ranker {
     double lambda = 0.5;
 
     for(String queryToken : query._tokens){
-      double termFrequency = _indexer.documentTermFrequency(queryToken,doc._docid);
-      double corpusTermFrequency = _indexer.corpusDocFrequencyByTerm(queryToken);
+      double termFrequency = _indexer.documentTermFrequency(queryToken,doc._docid, query._emotionType);
+      double corpusTermFrequency = _indexer.corpusDocFrequencyByTerm(queryToken, query._emotionType);
       queryLikelyhoodProbability *= (1-lambda)*(termFrequency/totalTermsInDoc)+(lambda)*(corpusTermFrequency/totalTermsInCourpus);
     }
 
     if (query instanceof QueryPhrase) {
       for (Vector<String> phraseTokens : ((QueryPhrase) query)._phraseTokens) {
         for(String queryToken : phraseTokens){
-          double termFrequency = _indexer.documentTermFrequency(queryToken,doc._docid);
-          double corpusTermFrequency = _indexer.corpusDocFrequencyByTerm(queryToken);
+          double termFrequency = _indexer.documentTermFrequency(queryToken,doc._docid, query._emotionType);
+          double corpusTermFrequency = _indexer.corpusDocFrequencyByTerm(queryToken, query._emotionType);
           queryLikelyhoodProbability *= (1-lambda)*(termFrequency/totalTermsInDoc)+(lambda)*(corpusTermFrequency/totalTermsInCourpus);
         }
       }

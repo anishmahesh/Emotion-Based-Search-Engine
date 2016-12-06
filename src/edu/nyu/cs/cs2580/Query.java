@@ -1,5 +1,7 @@
 package edu.nyu.cs.cs2580;
 
+import edu.nyu.cs.cs2580.QueryHandler.CgiArguments.EmotionType;
+
 import java.util.Scanner;
 import java.util.Vector;
 
@@ -15,10 +17,12 @@ import java.util.Vector;
  */
 public class Query {
   public String _query = null;
+  public EmotionType _emotionType;
   public Vector<String> _tokens = new Vector<String>();
 
-  public Query(String query) {
+  public Query(String query, EmotionType emotionType) {
     _query = query;
+    _emotionType = emotionType;
   }
 
   public void processQuery() {

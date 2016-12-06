@@ -1,5 +1,7 @@
 package edu.nyu.cs.cs2580;
 
+import edu.nyu.cs.cs2580.QueryHandler.CgiArguments.EmotionType;
+
 import java.util.Scanner;
 import java.util.Vector;
 import java.util.regex.Pattern;
@@ -13,8 +15,8 @@ public class QueryPhrase extends Query {
 
   public Vector<Vector<String>> _phraseTokens = new Vector<>();
 
-  public QueryPhrase(String query) {
-    super(query);
+  public QueryPhrase(String query, EmotionType emotionType) {
+    super(query, emotionType);
   }
 
   @Override

@@ -2,6 +2,7 @@ package edu.nyu.cs.cs2580;
 
 import java.io.IOException;
 
+import edu.nyu.cs.cs2580.QueryHandler.CgiArguments.EmotionType;
 import edu.nyu.cs.cs2580.SearchEngine.Options;
 
 /**
@@ -123,14 +124,14 @@ public abstract class Indexer {
   public final long totalTermFrequency() { return _totalTermFrequency; }
 
   // Number of documents in which {@code term} appeared, over the full corpus.
-  public abstract int corpusDocFrequencyByTerm(String term);
+  public abstract int corpusDocFrequencyByTerm(String term, EmotionType emotionType);
 
   // Number of times {@code term} appeared in corpus. 
-  public abstract int corpusTermFrequency(String term);
+  public abstract int corpusTermFrequency(String term, EmotionType emotionType);
 
   // Number of times {@code term} appeared in the document {@code docid}.
   // *** @CS2580: Note the function signature change from url to docid. ***
-  public abstract int documentTermFrequency(String term, int docid);
+  public abstract int documentTermFrequency(String term, int docid, EmotionType emotionType);
 
   /**
    * All Indexers must be created through this factory class based on the
@@ -138,16 +139,7 @@ public abstract class Indexer {
    */
   public static class Factory {
     public static Indexer getIndexerByOption(Options options) {
-      if (options._indexerType.equals("fullscan")) {
-        return new IndexerFullScan(options);
-      } else if (options._indexerType.equals("inverted-doconly")) {
-        return new IndexerInvertedDoconly(options);
-      } else if (options._indexerType.equals("inverted-occurrence")) {
-        return new IndexerInvertedOccurrence(options);
-      } else if (options._indexerType.equals("inverted-compressed")) {
-        return new IndexerInvertedCompressed(options);
-      }
-      return null;
+      return new IndexerInvertedCompressed(options);
     }
   }
 }
