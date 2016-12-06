@@ -105,9 +105,11 @@ class QueryHandler implements HttpHandler {
   // we are not worried about thread-safety here, the Indexer class must take
   // care of thread-safety.
   private Indexer _indexer;
+  private Indexer _indexerFunny;
 
-  public QueryHandler(Options options, Indexer indexer) {
+  public QueryHandler(Options options, Indexer indexer, Indexer funnyIndexer) {
     _indexer = indexer;
+    _indexerFunny = funnyIndexer;
   }
 
   private void respondWithMsg(HttpExchange exchange, final String message)

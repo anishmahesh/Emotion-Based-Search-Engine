@@ -57,6 +57,8 @@ public class SearchEngine {
     // HW3: We have a partial Wikipedia visit log dump.
     public String _logPrefix = null;
 
+    public String _funnyPrefix = null;
+
     // The parent path where the constructed index resides.
     // HW1: n/a
     // HW2/HW3: This is where the index is built into and loaded from.
@@ -105,6 +107,8 @@ public class SearchEngine {
       Check(_dataPrefix != null, "Missing option: data_prefix");
       _logPrefix = options.get("log_prefix");
       Check(_logPrefix != null, "Missing option: log_prefix!");
+      _funnyPrefix = options.get("funny_prefix");
+      Check(_funnyPrefix != null, "Missing option: funny_prefix!");
       _indexPrefix = options.get("index_prefix");
       Check(_indexPrefix != null, "Missing option: index_prefix!");
 
@@ -190,18 +194,26 @@ public class SearchEngine {
   
   private static void startIndexing() throws IOException {
     Indexer indexer = Indexer.Factory.getIndexerByOption(SearchEngine.OPTIONS);
+    Indexer funnyIndexer = new IndexerForFunny(SearchEngine.OPTIONS);
     Check(indexer != null,
         "Indexer " + SearchEngine.OPTIONS._indexerType + " not found!");
+    Check(funnyIndexer != null,
+            "Indexer Funny not found!");
     indexer.constructIndex();
+    funnyIndexer.constructIndex();
   }
   
   private static void startServing() throws IOException, ClassNotFoundException {
     // Create the handler and its associated indexer.
     Indexer indexer = Indexer.Factory.getIndexerByOption(SearchEngine.OPTIONS);
+    Indexer funnyIndexer = new IndexerForFunny(SearchEngine.OPTIONS);
     Check(indexer != null,
-        "Indexer " + SearchEngine.OPTIONS._indexerType + " not found!");
+            "Indexer " + SearchEngine.OPTIONS._indexerType + " not found!");
+    Check(funnyIndexer != null,
+            "Indexer Funny not found!");
     indexer.loadIndex();
-    QueryHandler handler = new QueryHandler(SearchEngine.OPTIONS, indexer);
+    funnyIndexer.loadIndex();
+    QueryHandler handler = new QueryHandler(SearchEngine.OPTIONS, indexer, funnyIndexer);
 
     // Establish the serving environment
     InetSocketAddress addr = new InetSocketAddress(SearchEngine.PORT);
