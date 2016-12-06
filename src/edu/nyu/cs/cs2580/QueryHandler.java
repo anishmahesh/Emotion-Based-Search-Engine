@@ -34,17 +34,20 @@ class QueryHandler implements HttpHandler {
 
     // The type of the ranker we will be using.
     public enum RankerType {
-      NONE,
-      FULLSCAN,
-      CONJUNCTIVE,
       FAVORITE,
-      COSINE,
-      PHRASE,
-      QL,
-      LINEAR,
-      COMPREHENSIVE
+      FAVORITEFOREMOTION,
     }
+
     public RankerType _rankerType = RankerType.FAVORITE;
+
+    private RankerType getRankerByEmotion(EmotionType emotionType){
+      switch (emotionType) {
+        case JOY: return RankerType.FAVORITEFOREMOTION;
+        case SAD: return RankerType.FAVORITEFOREMOTION;
+        case FUNNY:
+        default: return RankerType.FAVORITE;
+      }
+    }
 
     public enum EmotionType {
       FUNNY,
@@ -78,12 +81,6 @@ class QueryHandler implements HttpHandler {
           } catch (NumberFormatException e) {
             // Ignored, search engine should never fail upon invalid user input.
           }
-        } else if (key.equals("ranker")) {
-          try {
-            _rankerType = RankerType.valueOf(val.toUpperCase());
-          } catch (IllegalArgumentException e) {
-            // Ignored, search engine should never fail upon invalid user input.
-          }
         } else if (key.equals("format")) {
           try {
             _outputFormat = OutputFormat.valueOf(val.toUpperCase());
@@ -93,6 +90,7 @@ class QueryHandler implements HttpHandler {
         } else if ( key.toLowerCase().equals("emotion")){
           try {
             _emotionType = EmotionType.valueOf(val.toUpperCase());
+            _rankerType = getRankerByEmotion(_emotionType);
           } catch (IllegalArgumentException e) {
             // Ignored, search engine should never fail upon invalid user input.
           }
