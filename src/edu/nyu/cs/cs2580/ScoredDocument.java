@@ -30,7 +30,7 @@ class ScoredDocument implements Comparable<ScoredDocument> {
    */
   public String asHtmlResult() {
     HTMLOutputFormatter htmlOutput = new HTMLOutputFormatter();
-    return  htmlOutput.getSearchResultRow(_doc.getTitle(),"....",_doc.getNumViews(),_score,_doc._docid);
+    return  htmlOutput.getSearchResultRow(_doc.getTitle(),"....",_doc.getNumViews(),_score,_doc._docid, _doc.getUrl());
   }
 
   @Override

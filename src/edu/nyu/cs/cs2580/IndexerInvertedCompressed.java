@@ -53,12 +53,13 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
 
   @Override
   public void constructIndex() throws IOException {
+    String dataDir = _options._dataPrefix;
     String corpusDir = _options._corpusPrefix;
     String indexDir  = _options._indexPrefix;
 
     deleteExistingFile(indexDir);
 
-    processDocFiles(corpusDir, indexDir);
+    processDocFiles(dataDir, corpusDir, indexDir);
 
     System.out.println("Created partial indexes. Now merging them");
 
@@ -289,7 +290,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
       }
   }
 
-  private void processDocFiles(String corpusDir, String indexDir) throws IOException {
+  private void processDocFiles(String dataDir, String corpusDir, String indexDir) throws IOException {
 
     String indexPath = indexDir + "/phase1";
     File indexDirectory = new File(indexPath);
@@ -298,7 +299,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
       indexDirectory.mkdir();
     }
 
-    String emotionsFile = corpusDir + "/emotions.tsv";
+    String emotionsFile = dataDir + "/emotions.tsv";
     BufferedReader docReader = new BufferedReader(new FileReader(emotionsFile));
 
     String docsDir = indexDir + "/Documents";
@@ -314,7 +315,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     while ((line = docReader.readLine()) != null) {
       List<String> cols = stringTokenizer(line);
 
-      String docPath = corpusDir + "/corpus/" + cols.get(0) + ".txt";
+      String docPath = corpusDir + "/" + cols.get(0) + ".txt";
 
       File docFile = new File(docPath);
 

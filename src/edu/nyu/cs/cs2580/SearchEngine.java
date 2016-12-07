@@ -57,6 +57,8 @@ public class SearchEngine {
     // HW3: We have a partial Wikipedia visit log dump.
     public String _logPrefix = null;
 
+    public String _funnyPrefix = null;
+
     // The parent path where the constructed index resides.
     // HW1: n/a
     // HW2/HW3: This is where the index is built into and loaded from.
@@ -70,6 +72,12 @@ public class SearchEngine {
 
     // The specific LogMiner to be used.
     public String _logMinerType = null;
+
+    //Threshold to be checked
+    public String _postingThreshold = null;
+
+    //Multiplier for Threshold
+    public String _multiplierForThreshold = null;
 
     // Additional group specific configuration can be added below.
 
@@ -105,6 +113,8 @@ public class SearchEngine {
       Check(_dataPrefix != null, "Missing option: data_prefix");
       _logPrefix = options.get("log_prefix");
       Check(_logPrefix != null, "Missing option: log_prefix!");
+      _funnyPrefix = options.get("funny_prefix");
+      Check(_funnyPrefix != null, "Missing option: funny_prefix!");
       _indexPrefix = options.get("index_prefix");
       Check(_indexPrefix != null, "Missing option: index_prefix!");
 
@@ -114,7 +124,15 @@ public class SearchEngine {
 
       _corpusAnalyzerType = options.get("corpus_analyzer_type");
       Check(_corpusAnalyzerType != null,
-          "Missing option: corpus_analyzer_type!");
+              "Missing option: corpus_analyzer_type!");
+
+      _postingThreshold = options.get("threshold_value");
+      Check(_postingThreshold != null,
+              "Missing option: threshold_value!");
+
+      _multiplierForThreshold = options.get("multiplier_value");
+      Check(_multiplierForThreshold != null,
+              "Missing option: multiplier_value!");
 
       _logMinerType = options.get("log_miner_type");
       Check(_logMinerType != null, "Missing option: log_miner_type!");
@@ -146,7 +164,7 @@ public class SearchEngine {
   public static int PORT = -1;
 
   private static void parseCommandLine(String[] args)
-      throws IOException, NumberFormatException {
+          throws IOException, NumberFormatException {
     for (String arg : args) {
       String[] vals = arg.split("=", 2);
       String key = vals[0].trim();
@@ -164,44 +182,52 @@ public class SearchEngine {
       }
     }
     Check(MODE == Mode.SERVE || MODE == Mode.INDEX || MODE == Mode.MINING,
-        "Must provide a valid mode: serve or index or mining!");
+            "Must provide a valid mode: serve or index or mining!");
     Check(MODE != Mode.SERVE || PORT != -1,
-        "Must provide a valid port number (258XX) in serve mode!");
+            "Must provide a valid port number (258XX) in serve mode!");
     Check(OPTIONS != null, "Must provide options!");
   }
 
   ///// Main functionalities start
 
   private static void startMining()
-      throws IOException, NoSuchAlgorithmException {
+          throws IOException, NoSuchAlgorithmException {
     CorpusAnalyzer analyzer = CorpusAnalyzer.Factory.getCorpusAnalyzerByOption(
-        SearchEngine.OPTIONS);
+            SearchEngine.OPTIONS);
     Check(analyzer != null,
-        "Analyzer " + SearchEngine.OPTIONS._corpusAnalyzerType + " not found!");
+            "Analyzer " + SearchEngine.OPTIONS._corpusAnalyzerType + " not found!");
     analyzer.prepare();
     analyzer.compute();
 
     LogMiner miner = LogMiner.Factory.getLogMinerByOption(SearchEngine.OPTIONS);
     Check(miner != null,
-        "Miner " + SearchEngine.OPTIONS._logMinerType + " not found!");
+            "Miner " + SearchEngine.OPTIONS._logMinerType + " not found!");
     miner.compute();
     return;
   }
-  
+
   private static void startIndexing() throws IOException {
     Indexer indexer = Indexer.Factory.getIndexerByOption(SearchEngine.OPTIONS);
+    Indexer funnyIndexer = new IndexerForFunny(SearchEngine.OPTIONS);
     Check(indexer != null,
         "Indexer " + SearchEngine.OPTIONS._indexerType + " not found!");
+    Check(funnyIndexer != null,
+            "Indexer Funny not found!");
     indexer.constructIndex();
+    funnyIndexer.constructIndex();
   }
-  
+
   private static void startServing() throws IOException, ClassNotFoundException {
     // Create the handler and its associated indexer.
     Indexer indexer = Indexer.Factory.getIndexerByOption(SearchEngine.OPTIONS);
+    Indexer funnyIndexer = new IndexerForFunny(SearchEngine.OPTIONS);
     Check(indexer != null,
-        "Indexer " + SearchEngine.OPTIONS._indexerType + " not found!");
+            "Indexer " + SearchEngine.OPTIONS._indexerType + " not found!");
+    Check(funnyIndexer != null,
+            "Indexer Funny not found!");
     indexer.loadIndex();
-    QueryHandler handler = new QueryHandler(SearchEngine.OPTIONS, indexer);
+    funnyIndexer.loadIndex();
+    QueryHandler handler = new QueryHandler(SearchEngine.OPTIONS, indexer, funnyIndexer);
 
     // Establish the serving environment
     InetSocketAddress addr = new InetSocketAddress(SearchEngine.PORT);
@@ -211,24 +237,24 @@ public class SearchEngine {
     server.setExecutor(Executors.newCachedThreadPool());
     server.start();
     System.out.println(
-        "Listening on port: " + Integer.toString(SearchEngine.PORT));
+            "Listening on port: " + Integer.toString(SearchEngine.PORT));
   }
-  
+
   public static void main(String[] args) {
     try {
       SearchEngine.parseCommandLine(args);
       switch (SearchEngine.MODE) {
-      case MINING:
-        //startMining();
-        break;
-      case INDEX:
-        startIndexing();
-        break;
-      case SERVE:
-        startServing();
-        break;
-      default:
-        Check(false, "Wrong mode for SearchEngine!");
+        case MINING:
+          //startMining();
+          break;
+        case INDEX:
+          startIndexing();
+          break;
+        case SERVE:
+          startServing();
+          break;
+        default:
+          Check(false, "Wrong mode for SearchEngine!");
       }
     } catch (Exception e) {
       System.err.println(e.getMessage());
