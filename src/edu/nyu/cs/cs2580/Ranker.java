@@ -55,7 +55,7 @@ public abstract class Ranker {
         Options options, Indexer indexer) {
       switch (arguments._rankerType) {
         case FAVORITEFOREMOTION:
-        return new RankerFavoriteforEmotion(options, arguments, indexer);
+        return new RankerFavoriteForEmotion(options, arguments, indexer);
       case FAVORITE:
       default:
         return new RankerFavorite(options, arguments, indexer);
