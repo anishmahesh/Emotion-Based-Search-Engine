@@ -1,6 +1,5 @@
 package DataPreProcessing.Mining;
 
-import DataPreProcessing.Mining.HTMLParse;
 import com.ibm.watson.developer_cloud.alchemy.v1.AlchemyLanguage;
 import com.ibm.watson.developer_cloud.alchemy.v1.model.DocumentEmotion;
 import com.ibm.watson.developer_cloud.alchemy.v1.model.DocumentSentiment;
@@ -24,14 +23,15 @@ public class Emotion {
         for (File file : fileNames) {
             try {
                 if (file.isFile() && !file.isHidden()) {
-                    String text = htmlParse.getDocument(file);
+                    DocTextFields dtf = getDocTextFields(file);
+                    String text = dtf.title + "\n" + dtf.bodyText;
                     fileEmotion.put(file.getName(), getEmotion(text, key));
                 }
             } catch (Exception e){
 
             }
         }
-        String outputPath =   "data/analyzed/emotions.tsv";
+        String outputPath =   "data/emotions.tsv";
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputPath));
         for(String docName : fileEmotion.keySet()) {
             DocumentEmotion.Emotion emotions = fileEmotion.get(docName).getEmotion();
@@ -40,6 +40,34 @@ public class Emotion {
             System.out.print(emotions);
         }
         bufferedWriter.close();
+    }
+
+    private DocTextFields getDocTextFields(File doc) throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(doc));
+        String title = br.readLine();
+        String url = br.readLine();
+        String temp ;
+        StringBuilder bodyText = new StringBuilder();
+        while((temp = br.readLine()) != null){
+            bodyText.append("\n"+temp);
+        }
+        br.close();
+
+        DocTextFields dtf = new DocTextFields();
+        dtf.title = title;
+        dtf.url = url;
+        dtf.bodyText = bodyText.toString();
+
+        return dtf;
+    }
+
+    class DocTextFields{
+        String title;
+        String url;
+        String bodyText;
+
+        public DocTextFields() {
+        }
     }
 
     private DocumentEmotion getEmotion(String text, String key) {
@@ -54,7 +82,7 @@ public class Emotion {
     }
 
     public void scoreSortDocs() throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader("data/analyzed/emotions.tsv"));
+        BufferedReader bufferedReader = new BufferedReader(new FileReader("data/emotions.tsv"));
         String line;
         String splits[];
         ArrayList<HappyObject> docHappy = new ArrayList<HappyObject>();
