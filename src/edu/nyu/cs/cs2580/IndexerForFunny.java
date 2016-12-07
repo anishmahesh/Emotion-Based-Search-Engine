@@ -482,7 +482,7 @@ public class IndexerForFunny extends Indexer implements Serializable {
 
     @Override
     public void loadIndex() throws IOException, ClassNotFoundException {
-        String indexFile = _options._indexPrefix + "/objects.idx";
+        String indexFile = _options._funnyPrefix + "/index/objects.idx";
         System.out.println("Loading index objects other than postings list from: " + indexFile);
 
         ObjectInputStream reader =
