@@ -105,6 +105,15 @@ class QueryHandler implements HttpHandler {
   private Indexer _indexer;
   private Indexer _indexerFunny;
 
+  private Indexer getIndexerByEmotion(CgiArguments.EmotionType emotionType){
+    switch (emotionType) {
+      case JOY: return _indexer;
+      case SAD: return _indexer;
+      case FUNNY:
+      default: return _indexerFunny;
+    }
+  }
+
   public QueryHandler(Options options, Indexer indexer, Indexer funnyIndexer) {
     _indexer = indexer;
     _indexerFunny = funnyIndexer;
@@ -174,7 +183,7 @@ class QueryHandler implements HttpHandler {
 
     // Create the ranker.
     Ranker ranker = Ranker.Factory.getRankerByArguments(
-            cgiArgs, SearchEngine.OPTIONS, _indexer);
+              cgiArgs, SearchEngine.OPTIONS, getIndexerByEmotion(cgiArgs._emotionType));
     if (ranker == null) {
       respondWithMsg(exchange,
               "Ranker " + cgiArgs._rankerType.toString() + " is not valid!");
