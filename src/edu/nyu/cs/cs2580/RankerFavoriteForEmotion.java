@@ -8,9 +8,9 @@ import java.util.Vector;
 /**
  * Created by naman on 12/6/2016.
  */
-public class RankerFavoriteforEmotion extends Ranker{
-    public RankerFavoriteforEmotion(SearchEngine.Options options,
-                          QueryHandler.CgiArguments arguments, Indexer indexer) {
+public class RankerFavoriteForEmotion extends Ranker{
+    public RankerFavoriteForEmotion(SearchEngine.Options options,
+                                    QueryHandler.CgiArguments arguments, Indexer indexer) {
         super(options, arguments, indexer);
         System.out.println("Using Ranker: " + this.getClass().getSimpleName());
     }
