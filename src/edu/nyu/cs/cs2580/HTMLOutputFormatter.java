@@ -199,7 +199,7 @@ public class HTMLOutputFormatter {
                 "                            <input type=\"hidden\" id=\"num\" name=\"num\" />\n" +
                 "                            <input type=\"hidden\" id=\"fromIndex\" name=\"fromIndex\" />\n" +
                 "                            <input type=\"hidden\" id=\"format\" name=\"format\" />\n" +
-                "                            <input type=\"hidden\" id=\"emo\" name=\"emotion\" />\n" +
+                "                            <input type=\"hidden\" id=\"emotion\" name=\"emotion\" />\n" +
                 "                            <input type=\"hidden\" id=\"format\" name=\"format\" value=\"html\" />\n" +
                 "                        </form>\n" +
                 "                        </head>\n" +
