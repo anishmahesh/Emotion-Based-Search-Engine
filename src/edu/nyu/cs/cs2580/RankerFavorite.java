@@ -47,13 +47,12 @@ public class RankerFavorite extends Ranker {
       results.add(scoredDoc);
     }
 
+    Collections.sort(results, Collections.reverseOrder());
 
     Vector<ScoredDocument> finalResults = new Vector<ScoredDocument>();
-    for(int i = (query._pagination -1) * numResults; i< query._pagination *numResults; i++ ) {
+    for(int i = (query._pagination -1) * numResults; i< query._pagination *numResults && i<results.size(); i++ ) {
       finalResults.add(results.get(i));
     }
-
-    Collections.sort(finalResults, Collections.reverseOrder());
     return finalResults;
   }
 

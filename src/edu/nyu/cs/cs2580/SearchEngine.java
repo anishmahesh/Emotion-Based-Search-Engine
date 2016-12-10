@@ -213,7 +213,7 @@ public class SearchEngine {
         "Indexer " + SearchEngine.OPTIONS._indexerType + " not found!");
     Check(funnyIndexer != null,
             "Indexer Funny not found!");
-    indexer.constructIndex();
+    //indexer.constructIndex();
     funnyIndexer.constructIndex();
   }
 
@@ -225,7 +225,7 @@ public class SearchEngine {
             "Indexer " + SearchEngine.OPTIONS._indexerType + " not found!");
     Check(funnyIndexer != null,
             "Indexer Funny not found!");
-    indexer.loadIndex();
+    //indexer.loadIndex();
     funnyIndexer.loadIndex();
     QueryHandler handler = new QueryHandler(SearchEngine.OPTIONS, indexer, funnyIndexer);
 

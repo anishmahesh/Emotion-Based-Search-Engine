@@ -654,6 +654,11 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
   /**
    * In HW2, you should be using {@link DocumentIndexed}.
    */
+
+  public NextDoc nextDocForEmotion(Query query, int docid, int beginIndex, int endIndex){
+    return null;
+  }
+
   @Override
   public Document nextDoc(Query query, int docid) {
 
