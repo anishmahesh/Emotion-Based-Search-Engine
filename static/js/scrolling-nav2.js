@@ -51,8 +51,9 @@ $( document ).ready(function() {
         var query = decodeURI(getUrlParameter("query")).replace(/\+/g, ' ');
         var num = getUrlParameter("num");
         var fromIndex = getUrlParameter("fromIndex");
-        var emo = getUrlParameter("emo");
+        var emo = getUrlParameter("emotion");
 
+        $("#format").val("html");
         if (num == ""){
             $("#num").val("10");
         }else{
@@ -71,15 +72,15 @@ $( document ).ready(function() {
             $("#fromIndex").val(fromIndex);
         }
                     
-        if (emo == ""){
-            $("#emo").val("funny");
+        if(emo == ""){
+            $("#emotion").val("funny");
         }else{
-                if(emo == "happy"){
+                if(emo == "joy"){
                     document.getElementById("btn-emo").src="static/images/happy.png";
                 }else if(emo == "sad"){
                     document.getElementById("btn-emo").src="static/images/sad.png";
                 }
-            $("#emo").val(emo);
+                $("#emotion").val(emo);
         }
 
         $( "#submitSearch" ).click(function() {
@@ -88,16 +89,17 @@ $( document ).ready(function() {
         });
                     
         $( "#emo-funny" ).click(function() {
-            $("#emo").val("funny");
+            $("#emotion").val("funny");
             document.getElementById("btn-emo").src="static/images/funny.png";
-
         });
+                    
         $( "#emo-happy" ).click(function() {
-            $("#emo").val("joy");
+            $("#emotion").val("joy");
             document.getElementById("btn-emo").src="static/images/happy.png";
         });
+                    
         $( "#emo-sad" ).click(function() {
-            $("#emo").val("sad");
+            $("#emotion").val("sad");
             document.getElementById("btn-emo").src="static/images/sad.png";
         });
                     
@@ -108,6 +110,4 @@ $( document ).ready(function() {
                     return false;
             }
         });
-                    
-                    
 });
