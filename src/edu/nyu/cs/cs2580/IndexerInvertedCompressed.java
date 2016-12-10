@@ -22,6 +22,8 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
   public int maxNumViews = 0;
   public float maxPageRank = 0.0f;
 
+  private boolean endSearch = false;
+
   // Maps each term to their integer representation
   private Map<String, Integer> _dictionary = new HashMap<String, Integer>();
   // All unique terms appeared in corpus. Offsets are integer representations.
@@ -655,16 +657,20 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
    * In HW2, you should be using {@link DocumentIndexed}.
    */
   @Override
-  public Document nextDoc(Query query, int docid) {
+  public Document nextDoc(Query query, int docid){
+    return null;
+  }
+
+  public NextDoc nextDocForEmotion(Query query, int docid, HashMap<String, Integer> beginIndex, int endIndex) {
 
     if(query instanceof QueryPhrase){
-      return nextDocPhrase((QueryPhrase) query, docid, query._emotionType);
+      return nextDocPhrase((QueryPhrase) query, docid, query._emotionType, beginIndex, endIndex);
     } else {
-      return nextDocIndividualTokens(query._tokens, docid, query._emotionType);
+      return nextDocIndividualTokens(query._tokens, docid, query._emotionType, beginIndex, endIndex);
     }
   }
 
-  public Document nextDocIndividualTokens(Vector<String> queryTokens, int docid, EmotionType emotionType) {
+  public NextDoc nextDocIndividualTokens(Vector<String> queryTokens, int docid, EmotionType emotionType, HashMap<String, Integer> beginIndex, int endIndex) {
     while (true) {
       List<Integer> idArray = new ArrayList<>();
       int maxId = -1;
@@ -675,7 +681,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
           return null;
         }
         loadTermIfNotLoaded(term, emotionType);
-        idArray.add(next(term,docid, emotionType));
+        idArray.add(next(term,docid, emotionType, beginIndex, endIndex));
       }
       for(int id : idArray){
         if(id == -1){
@@ -692,13 +698,18 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
         }
       }
       if(allQueryTermsInSameDoc){
-        return _documents.get(sameDocId);
+
+        HashMap<String, Integer> indexes = new HashMap<>();
+        for(String queryTerm: queryTokens){
+          indexes.put(queryTerm, sameDocId);
+        }
+        return new NextDoc( endSearch ,_documents.get(sameDocId), indexes);
       }
       docid=maxId-1;
     }
   }
 
-  public Document nextDocPhrase(QueryPhrase query, int docid, EmotionType emotionType){
+  public NextDoc nextDocPhrase(QueryPhrase query, int docid, EmotionType emotionType, HashMap<String, Integer> beginIndex, int endIndex){
     List<Integer> idArray = new ArrayList<>();
     int maxId = -1;
     int sameDocId = -1;
@@ -708,11 +719,11 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
         return null;
       }
       loadTermIfNotLoaded(term, emotionType);
-      idArray.add(next(term,docid, emotionType));
+      idArray.add(next(term,docid, emotionType, beginIndex, endIndex));
     }
 
     for (Vector<String> phraseTerms : query._phraseTokens) {
-      idArray.add(nextForPhrase(phraseTerms, docid, emotionType));
+      idArray.add(nextForPhrase(phraseTerms, docid, emotionType, beginIndex, endIndex));
     }
 
     for(int id : idArray){
@@ -730,18 +741,29 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
       }
     }
     if(allQueryTermsInSameDoc){
-      return _documents.get(sameDocId);
+
+      HashMap<String, Integer> indexes = new HashMap<>();
+      for(String queryTerm: query._tokens){
+        indexes.put(queryTerm, sameDocId);
+      }
+      for (Vector<String> phraseTerms : query._phraseTokens) {
+        for(String phraseToken : phraseTerms) {
+          indexes.put(phraseToken, 0);
+        }
+      }
+
+      return new NextDoc( endSearch ,_documents.get(sameDocId), indexes);
     }
-    return nextDocPhrase(query, maxId-1, emotionType);
+    return nextDocPhrase(query, maxId-1, emotionType, beginIndex, endIndex);
   }
 
-  private int nextForPhrase(Vector<String> phraseTerms, int docid, EmotionType emotionType) {
-    Document docForPhrase = nextDocIndividualTokens(phraseTerms, docid, emotionType);
+  private int nextForPhrase(Vector<String> phraseTerms, int docid, EmotionType emotionType, HashMap<String, Integer> beginIndex, int endIndex) {
+    Document docForPhrase = nextDocIndividualTokens(phraseTerms, docid, emotionType, beginIndex, endIndex).doc;
     if (docForPhrase == null) {
       return -1;
     }
 
-    Map<String, Vector<Integer>> termPositionMap = getTermPositionMapForDoc(phraseTerms, docForPhrase._docid, emotionType);
+    Map<String, Vector<Integer>> termPositionMap = getTermPositionMapForDoc(phraseTerms, docForPhrase._docid, emotionType, beginIndex, endIndex);
 
     String firstTerm = phraseTerms.get(0);
     for (int firstPos : termPositionMap.get(firstTerm)) {
@@ -756,15 +778,15 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
       }
     }
 
-    return nextForPhrase(phraseTerms, docForPhrase._docid, emotionType);
+    return nextForPhrase(phraseTerms, docForPhrase._docid, emotionType, beginIndex, endIndex);
   }
 
-  private Map<String, Vector<Integer>> getTermPositionMapForDoc(Vector<String> phraseTerms, int docForPhrase, EmotionType emotionType) {
+  private Map<String, Vector<Integer>> getTermPositionMapForDoc(Vector<String> phraseTerms, int docForPhrase, EmotionType emotionType, HashMap<String, Integer> beginIndex, int endIndex) {
     Map<String, Vector<Integer>> termPosMap = new HashMap<>();
 
     Vector<Integer> posList = new Vector<>();
     for (String term : phraseTerms) {
-      int docPos = binarySearchResultIndex(term, docForPhrase - 1, emotionType);
+      int docPos = linearSearchResultIndex(term, docForPhrase - 1, emotionType, beginIndex, endIndex);
       Vector<Integer> postingListforTerm = getPostingListforTerm(term, emotionType);
       for (int i = 0 ; i < postingListforTerm.get(docPos + 1) ; i++) {
         posList.add(postingListforTerm.get(docPos + 2 + i));
@@ -775,12 +797,27 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     return termPosMap;
   }
 
-  public int next(String queryTerm, int docid, EmotionType emotionType){
-    int binarySearchResultIndex = binarySearchResultIndex(queryTerm, docid, emotionType);
-    if (binarySearchResultIndex == -1)
+  public int next(String queryTerm, int docid, EmotionType emotionType, HashMap<String, Integer> beginIndex, int endIndex){
+    int linearSearchResultIndex = linearSearchResultIndex(queryTerm, docid, emotionType, beginIndex, endIndex);
+    if (linearSearchResultIndex == -1)
       return -1;
 
-    return getPostingListforTerm(queryTerm, emotionType).get(binarySearchResultIndex);
+    return getPostingListforTerm(queryTerm, emotionType).get(linearSearchResultIndex);
+  }
+
+  private int linearSearchResultIndex(String term, int docid, EmotionType emotionType, HashMap<String, Integer> beginIndex, int endIndex) {
+    endSearch = false;
+    Vector <Integer> PostingList = getPostingListforTerm(term, emotionType);
+    Vector <Integer> SkipList = getSkipListforTerm(term, emotionType);
+    for(int i=beginIndex.get(term); i<=endIndex; i++){
+        if (PostingList.get(SkipList.get(i)) == docid){
+          return SkipList.get(i+1);
+        }
+    }
+    if(endIndex == SkipList.get(SkipList.size() -1)){
+      endSearch = true;
+    }
+    return -1;
   }
 
   private Vector<Integer> getPostingListforTerm(String term, EmotionType emotionType){
@@ -789,32 +826,6 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
 
   private Vector<Integer> getSkipListforTerm(String term, EmotionType emotionType){
     return getSkipListByEmotion(emotionType).get(_dictionary.get(term));
-  }
-
-  private int binarySearchResultIndex(String term, int current, EmotionType emotionType){
-    Vector <Integer> PostingList = getPostingListforTerm(term, emotionType);
-    Vector <Integer> SkipList = getSkipListforTerm(term, emotionType);
-    int lt = SkipList.size()-1;
-    if(lt == 0 || PostingList.get(SkipList.get(lt)) <= current){
-      return -1;
-    }
-    if(PostingList.get(0)>current){
-      return 0;
-    }
-    return binarySearch(PostingList,SkipList,0,lt,current);
-  }
-
-  private int binarySearch(Vector<Integer> PostingList, Vector<Integer> SkipList, int low, int high, int current){
-    int mid;
-    while(high - low > 1) {
-      mid = (low + high) / 2;
-      if (PostingList.get(SkipList.get(mid)) <= current) {
-        low = mid;
-      } else {
-        high = mid;
-      }
-    }
-    return SkipList.get(high);
   }
 
   @Override

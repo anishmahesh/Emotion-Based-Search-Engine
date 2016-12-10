@@ -1,16 +1,16 @@
 package edu.nyu.cs.cs2580;
 
-import java.util.Collections;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Vector;
+import java.util.*;
+
+import edu.nyu.cs.cs2580.QueryHandler.CgiArguments;
+import edu.nyu.cs.cs2580.SearchEngine.Options;
 
 /**
  * Created by naman on 12/6/2016.
  */
 public class RankerFavoriteForEmotion extends Ranker{
-    public RankerFavoriteForEmotion(SearchEngine.Options options,
-                                    QueryHandler.CgiArguments arguments, Indexer indexer) {
+    public RankerFavoriteForEmotion(Options options,
+                                    CgiArguments arguments, Indexer indexer) {
         super(options, arguments, indexer);
         System.out.println("Using Ranker: " + this.getClass().getSimpleName());
     }
@@ -18,27 +18,37 @@ public class RankerFavoriteForEmotion extends Ranker{
     @Override
     public Vector<ScoredDocument> runQuery(Query query, int numResults) {
         Queue<ScoredDocument> rankQueue = new PriorityQueue<ScoredDocument>();
-        Document doc = null;
+        NextDoc nextDoc = null;
+
         int docid = -1;
-        int startIndex = 0;
-        int endIndex = Integer.parseInt(_options._postingThreshold);
         int threshold = Integer.parseInt(_options._postingThreshold);
         int multiplier = Integer.parseInt(_options._multiplierForThreshold);
+        HashMap<String, Integer> startIndex = new HashMap<>();
+        int endIndex = threshold * multiplier;
         int docFetched = 0;
-        Vector<ScoredDocument> finalResult = new Vector<>();
+
+        for(String queryTerm : query._tokens){
+            startIndex.put(queryTerm, 0);
+        }
+
+        Vector<ScoredDocument> intermediateResult = new Vector<>();
+
         while(true) {
-            while ((doc = _indexer.nextDoc(query, docid)) != null &&  docFetched <= threshold) {
+            while ((nextDoc = _indexer.nextDocForEmotion(query, docid, startIndex, endIndex)) != null) {
                 docFetched++;
-                rankQueue.add(scoreDocument(doc, query));
-                if (rankQueue.size() > numResults) {
+                rankQueue.add(scoreDocument(nextDoc.doc, query));
+                if (rankQueue.size() > (numResults * query._pagination) +1 ) {
                     rankQueue.poll();
                 }
-                docid = doc._docid;
+                startIndex = nextDoc.prevDocIndex;
+                docid = nextDoc.doc._docid;
             }
 
             docFetched = 0;
-            threshold = threshold * multiplier;
-
+            for(String queryTerm : query._tokens){
+                startIndex.put(queryTerm, endIndex+1);
+            }
+            endIndex = threshold++ * multiplier;
             Vector<ScoredDocument> results = new Vector<ScoredDocument>();
             ScoredDocument scoredDoc = null;
             while ((scoredDoc = rankQueue.poll()) != null) {
@@ -46,15 +56,25 @@ public class RankerFavoriteForEmotion extends Ranker{
             }
             Collections.sort(results, Collections.reverseOrder());
 
-            for(ScoredDocument resultDoc: results){
-                finalResult.add(resultDoc);
+            for(int i=0; i<numResults; i++){
+                intermediateResult.add(results.get(i));
             }
-            if(finalResult.size() == numResults || doc == null){
+            if(intermediateResult.size() == numResults * query._pagination || nextDoc.stopRepeat == true){
                 break;
             }
         }
 
-        return finalResult;
+        if(docFetched > query._pagination * numResults){
+            CgiArguments.moreDocFlag = true;
+        } else {
+            CgiArguments.moreDocFlag = false;
+        }
+
+        Vector<ScoredDocument> finalResults = new Vector<>();
+        for(int i = (query._pagination -1) * numResults; i< query._pagination *numResults; i++ ) {
+            finalResults.add(intermediateResult.get(i));
+        }
+        return finalResults;
     }
 
     /*
