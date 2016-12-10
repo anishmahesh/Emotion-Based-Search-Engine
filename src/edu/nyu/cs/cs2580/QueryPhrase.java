@@ -15,8 +15,8 @@ public class QueryPhrase extends Query {
 
   public Vector<Vector<String>> _phraseTokens = new Vector<>();
 
-  public QueryPhrase(String query, EmotionType emotionType) {
-    super(query, emotionType);
+  public QueryPhrase(String query, EmotionType emotionType, int pagination) {
+    super(query, emotionType, pagination);
   }
 
   @Override

@@ -72,6 +72,8 @@ public abstract class Indexer {
    */
   public abstract Document nextDoc(Query query, int docid);
 
+  public abstract NextDoc nextDocForEmotion(Query query, int docid, int beginIndex, int endIndex);
+
   // APIs for index construction and loading.
 
   /**

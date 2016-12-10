@@ -797,6 +797,11 @@ public class IndexerForFunny extends Indexer implements Serializable {
         }
     }
 
+    @Override
+    public NextDoc nextDocForEmotion(Query query, int docid, int beginIndex, int endIndex) {
+        return null;
+    }
+
     private DocTextFields getDocTextFields(File doc) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(doc));
         String title = br.readLine();

@@ -31,6 +31,10 @@ class QueryHandler implements HttpHandler {
     public String _query = "";
     // How many results to return
     private int _numResults = 10;
+    //Results start and end determination
+    public int _pagination = 1;
+
+    public static boolean moreDocFlag = false;
 
     // The type of the ranker we will be using.
     public enum RankerType {
@@ -94,6 +98,8 @@ class QueryHandler implements HttpHandler {
           } catch (IllegalArgumentException e) {
             // Ignored, search engine should never fail upon invalid user input.
           }
+        } else if ( key.toLowerCase().equals("pagination")){
+          _pagination = Integer.parseInt(val);
         }
       }  // End of iterating over params
     }
@@ -184,7 +190,7 @@ class QueryHandler implements HttpHandler {
 
     // Create the ranker.
     Ranker ranker = Ranker.Factory.getRankerByArguments(
-              cgiArgs, SearchEngine.OPTIONS, getIndexerByEmotion(cgiArgs._emotionType));
+            cgiArgs, SearchEngine.OPTIONS, getIndexerByEmotion(cgiArgs._emotionType));
     if (ranker == null) {
       respondWithMsg(exchange,
               "Ranker " + cgiArgs._rankerType.toString() + " is not valid!");
@@ -193,12 +199,12 @@ class QueryHandler implements HttpHandler {
     Vector<ScoredDocument> scoredDocs = null;
     // Processing the query.
     if(cgiArgs._query.matches(".*?\".*\".*?")){
-      QueryPhrase processedQuery = new QueryPhrase(cgiArgs._query, cgiArgs._emotionType);
+      QueryPhrase processedQuery = new QueryPhrase(cgiArgs._query, cgiArgs._emotionType, cgiArgs._pagination);
       processedQuery.processQuery();
       scoredDocs =
               ranker.runQuery(processedQuery, cgiArgs._numResults);
     } else {
-      Query processedQuery = new Query(cgiArgs._query, cgiArgs._emotionType);
+      Query processedQuery = new Query(cgiArgs._query, cgiArgs._emotionType, cgiArgs._pagination);
       processedQuery.processQuery();
       scoredDocs =
               ranker.runQuery(processedQuery, cgiArgs._numResults);

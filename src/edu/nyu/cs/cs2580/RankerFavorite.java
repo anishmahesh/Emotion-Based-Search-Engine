@@ -27,12 +27,18 @@ public class RankerFavorite extends Ranker {
     Queue<ScoredDocument> rankQueue = new PriorityQueue<ScoredDocument>();
     Document doc = null;
     int docid = -1;
+    int documentFetched = 0;
     while ((doc = _indexer.nextDoc(query, docid)) != null) {
+      documentFetched++;
       rankQueue.add(scoreDocument(doc,query));
-      if (rankQueue.size() > numResults) {
+      if (rankQueue.size() > query._pagination  * numResults) {
         rankQueue.poll();
       }
       docid = doc._docid;
+    }
+
+    if(documentFetched > query._pagination * numResults){
+      CgiArguments.moreDocFlag = true;
     }
 
     Vector<ScoredDocument> results = new Vector<ScoredDocument>();
@@ -40,8 +46,15 @@ public class RankerFavorite extends Ranker {
     while ((scoredDoc = rankQueue.poll()) != null) {
       results.add(scoredDoc);
     }
-    Collections.sort(results, Collections.reverseOrder());
-    return results;
+
+
+    Vector<ScoredDocument> finalResults = new Vector<ScoredDocument>();
+    for(int i = (query._pagination -1) * numResults; i< query._pagination *numResults; i++ ) {
+      finalResults.add(results.get(i));
+    }
+
+    Collections.sort(finalResults, Collections.reverseOrder());
+    return finalResults;
   }
 
   /*

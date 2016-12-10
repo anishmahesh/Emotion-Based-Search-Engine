@@ -18,11 +18,13 @@ import java.util.Vector;
 public class Query {
   public String _query = null;
   public EmotionType _emotionType;
+  public int _pagination;
   public Vector<String> _tokens = new Vector<String>();
 
-  public Query(String query, EmotionType emotionType) {
+  public Query(String query, EmotionType emotionType, int pagination) {
     _query = query;
     _emotionType = emotionType;
+    _pagination = pagination;
   }
 
   public void processQuery() {
