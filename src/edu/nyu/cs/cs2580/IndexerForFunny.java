@@ -798,7 +798,7 @@ public class IndexerForFunny extends Indexer implements Serializable {
     }
 
     @Override
-    public NextDoc nextDocForEmotion(Query query, int docid, int beginIndex, int endIndex) {
+    public NextDoc nextDocForEmotion(Query query, int docid, HashMap<String, Integer> beginIndex, int endIndex) {
         return null;
     }
 
