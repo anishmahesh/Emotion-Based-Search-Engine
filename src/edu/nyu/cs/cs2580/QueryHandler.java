@@ -168,7 +168,8 @@ class QueryHandler implements HttpHandler {
     String uriQuery = exchange.getRequestURI().getQuery();
     String uriPath = exchange.getRequestURI().getPath();
     if (uriPath == null || uriQuery == null) {
-      respondWithMsg(exchange, "Something wrong with the URI!");
+      HTMLOutputFormatter html = new HTMLOutputFormatter();
+      respondWithMsg(exchange,html.getHome());
     }
     if (!uriPath.equals("/search")) {
       respondWithMsg(exchange, "Only /search is handled!");
