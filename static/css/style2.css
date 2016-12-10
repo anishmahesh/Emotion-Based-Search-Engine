@@ -1,0 +1,330 @@
+.facebook-reaction{
+    position:relative;
+    display: inline-block;
+    min-height:50px;
+}
+
+
+.like-btn {
+    -webkit-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border-radius: 5px;
+    
+    margin-left:10px;
+    border: none;
+    background: #95a5a6;
+    height: 36px !important;
+    width: 30px;
+    padding-top:9px;
+    padding-bottom:10px;
+    color: #ecf0f1;
+    opacity: 1;
+    font-size: 10pt;
+    font-weight:200;
+    -webkit-transition: all .45s ease;
+    -moz-transition: all .45s ease;
+    -ms-transition: all .45s ease;
+    -o-transition: all .45s ease;
+    transition: all .45s ease;
+}
+
+.like-btn:hover {
+    background: #64DDBB;
+}
+
+.like-btn-default {
+    background-image: url('images/facebook.png');
+    background-repeat: no-repeat;
+    background-size: auto;
+    background-position: -277px -446px;
+}
+
+.like-btn-emo {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+}
+
+.reactions-box {
+    height: 34px;
+    width: 132px;
+    padding: 8px;
+    position: absolute;
+    top: -40px;
+    left: -68px;
+    background: #f1f1f1;
+    box-shadow: 0.5px 0.5px 0.5px #cccccc, -0.5px 0px 0.5px #eeeeee;
+    border-radius: 9px 9px;
+    display: none;
+    z-index:3;
+}
+
+.reaction {
+    list-style-type: none;
+    cursor: pointer;
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    position: absolute;
+    top: 3px;
+    opacity: 0;
+    padding-bottom:3px;
+    transform: translate(0, 0) scale(1);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+}
+
+
+.like-btn:hover .reactions-box {
+    display: block;
+}
+
+.reaction-like {
+    left: 10px;
+    transition-delay: 0s;
+    background-image: url('images/reactions_like.png');
+}
+
+
+.reaction-love {
+    left: 68px;
+    transition-delay: .06s;
+    background-image: url('images/reactions_love.png');
+}
+
+
+.reaction-haha {
+    left: 12px;
+    bottom:10px;
+    transition-delay: 0s;
+    z-index:5;
+    background-image: url('../images/funny.png');
+}
+
+
+.reaction-wow {
+    left: 50px;
+    bottom:10px;
+    transition-delay: .10s;
+    z-index:5;
+    background-image: url('../images/happy.png');
+    margin-bottom:5px;
+}
+
+
+.reaction-sad {
+    left: 88px;
+    bottom:10px;
+    transition-delay: .20s;
+    z-index:5;
+    background-image: url('../images/sad.png');
+    margin-bottom:5px;
+}
+
+
+.reaction-angry {
+    left: 300px;
+    transition-delay: .10s;
+    background-image: url('images/reactions_angry.png');
+}
+
+
+.like-btn:hover .reaction {
+    opacity: 1;
+    animation-name: reaction_delay;
+    animation-duration: .30s;
+}
+
+@keyframes reaction_delay {
+    0% {
+        width: 28px;
+        height: 28px;
+        top: 6px;
+    }
+    48% {
+        width: 32px;
+        height: 32px;
+        top: 3px;
+    }
+    100% {
+        width: 28px;
+        height: 28px;
+        top: 6px;
+    }
+}
+
+
+.like-btn:hover .reaction-like {
+    animation-delay: 0s
+}
+
+.like-btn:hover .reaction-love {
+    animation-delay: .05s
+}
+
+.like-btn:hover .reaction-haha {
+    animation-delay: 0s
+}
+
+.like-btn:hover .reaction-wow {
+    animation-delay: .0s
+}
+
+.like-btn:hover .reaction-sad {
+    animation-delay: .0s
+}
+
+.like-btn:hover .reaction-angry {
+    animation-delay: .25s
+}
+
+.reaction:hover {
+    transform: scale(1.3, 1.3);
+    top: 2px
+}
+
+
+
+.reaction::before {
+    display: inline-block;
+    color: #ffffff;
+    text-align: center;
+    line-height: 14px;
+    font-size: .6em;
+    width: 100%;
+    height: 14px;
+    margin-left: 10%;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 20px;
+    position: absolute;
+    top: -14px;
+    left:-4px;
+    margin-bottom:6px;
+    opacity: 0;
+    transition: opacity .2s ease-in-out 0s;
+}
+
+.reaction:hover::before {
+    opacity: 1
+}
+
+.reaction-like::before {
+    content: 'Like'
+}
+
+.reaction-love::before {
+    content: 'Love'
+}
+
+.reaction-haha::before {
+    content: 'Funny'
+}
+
+.reaction-wow::before {
+    content: 'Joy'
+}
+
+
+.reaction-sad::before {
+    content: 'Sad'
+}
+
+.reaction-angry::before {
+    content: 'Angry'
+}
+
+.like-stat {
+    margin-top: 10px;
+}
+
+
+.like-btn-like{
+    background-image: url('images/reaction-small.png');
+    background-repeat: no-repeat;
+    background-size: auto;
+    background-position: -17px -151px;
+}
+
+.like-btn-love{
+    background-image: url('../images/reaction-small.png');
+    background-repeat: no-repeat;
+    background-size: auto;
+    background-position: 0 -168px;
+}
+
+.like-btn-haha{
+    background-image: url('images/reaction-small.png');
+    background-repeat: no-repeat;
+    background-size: auto;
+    background-position: 0 -151px;
+}
+
+.like-btn-wow{
+    background-image: url('images/reaction-small.png');
+    background-repeat: no-repeat;
+    background-size: auto;
+    background-position: -17px -185px;
+}
+
+.like-btn-sad{
+    background-image: url('images/reaction-small.png');
+    background-repeat: no-repeat;
+    background-size: auto;
+    background-position: -17px -168px;
+}
+
+.like-btn-angry{
+    background-image: url('../images/reaction-small.png');
+    background-repeat: no-repeat;
+    background-size: auto;
+    background-position: -17px -117px;
+}
+
+.like-btn-text-like {
+    color:rgb(88, 144, 255);
+}
+
+.like-btn-text-wow,.like-btn-text-haha,.like-btn-text-sad {
+    color:rgb(240, 186, 21)
+}
+
+.like-btn-text-love{
+    color:rgb(242, 82, 104)
+}
+
+.like-btn-text-angry{
+    color:rgb(247, 113, 75);
+}
+
+.like-emo > span{
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #EEE;
+    border-radius: 50%;
+}
+
+.like-details{
+    margin-left:10px;
+    color:#9197a3;
+    font-size:12px;
+}
+
+.like-btn:hover .arrow-down {
+    width: 0;
+    height: 0;
+    float:right;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 7px solid #f1f1f1;
+    z-index:2;
+    position:relative;
+    top:26px;
+    right:10px;
+}
+
