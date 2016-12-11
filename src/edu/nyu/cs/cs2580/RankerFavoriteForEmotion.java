@@ -104,7 +104,15 @@ public class RankerFavoriteForEmotion extends Ranker{
                 }
             }
         }
+        //Adding weightage to the title
+        String[] tokens = doc.getTitle().toLowerCase().split(" ");
+        System.out.println();
 
+        for(String queryToken : query._tokens){
+            if(Arrays.asList(tokens).contains(queryToken.toLowerCase())){
+                queryLikelyhoodProbability += 0.01;
+            }
+        }
         return new ScoredDocument(doc, queryLikelyhoodProbability);
     }
 

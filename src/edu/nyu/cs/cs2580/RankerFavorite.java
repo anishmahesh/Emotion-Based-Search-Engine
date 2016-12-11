@@ -1,9 +1,6 @@
 package edu.nyu.cs.cs2580;
 
-import java.util.Collections;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Vector;
+import java.util.*;
 
 import edu.nyu.cs.cs2580.QueryHandler.CgiArguments;
 import edu.nyu.cs.cs2580.SearchEngine.Options;
@@ -83,6 +80,15 @@ public class RankerFavorite extends Ranker {
       }
     }
 
+    //Adding weightage to the title
+    String[] tokens = doc.getTitle().toLowerCase().split(" ");
+    System.out.println();
+
+    for(String queryToken : query._tokens){
+      if(Arrays.asList(tokens).contains(queryToken.toLowerCase())){
+        queryLikelyhoodProbability += 0.01;
+      }
+    }
     return new ScoredDocument(doc, queryLikelyhoodProbability);
   }
 }
