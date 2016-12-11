@@ -48,6 +48,7 @@ public class HTMLOutputFormatter {
                 "                        <link href=\"static/css/bootstrap.min.css\" rel=\"stylesheet\"/>\n" +
                 "                        <link href=\"static/css/home.css\" rel=\"stylesheet\"/>\n" +
                 "                        <link href=\"static/css/card.css\" rel=\"stylesheet\"/>\n" +
+                "                        <link rel=\"stylesheet\" href=\"//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css\">\n"+
                 "                        <!-- Custom CSS -->\n" +
                 "                        <link href=\"static/css/style2.css\" rel=\"stylesheet\"/>\n" +
                 "                        \n" +
@@ -179,6 +180,7 @@ public class HTMLOutputFormatter {
                 "                <meta name=\"description\" content=\"\">\n" +
                 "                    <meta name=\"author\" content=\"\">\n" +
                 "                        <title>Bit Search</title>\n" +
+                "                        <link rel=\"stylesheet\" href=\"//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css\">\n"+
                 "                        <!-- Custom CSS -->\n" +
                 "                        <link href=\"static/css/card.css\" rel=\"stylesheet\"/>\n" +
                 "                        <!-- Bootstrap Core CSS -->\n" +
@@ -283,6 +285,7 @@ public class HTMLOutputFormatter {
                 "    <script src=\"static/js/jquery.easing.min.js\"></script>\n" +
                 "    <script src=\"static/js/scrolling-nav2.js\"></script>\n" +
                 "    <script src=\"static/js/reaction.js\"></script>\n" +
+                "    <script src=\"https://code.jquery.com/ui/1.12.1/jquery-ui.js\"></script>\n" +
                 "</html>\n";
         return home;
     }
