@@ -213,8 +213,8 @@ public class SearchEngine {
         "Indexer " + SearchEngine.OPTIONS._indexerType + " not found!");
     Check(funnyIndexer != null,
             "Indexer Funny not found!");
-    //indexer.constructIndex();
-    funnyIndexer.constructIndex();
+    indexer.constructIndex();
+    //funnyIndexer.constructIndex();
   }
 
   private static void startServing() throws IOException, ClassNotFoundException {
@@ -225,8 +225,8 @@ public class SearchEngine {
             "Indexer " + SearchEngine.OPTIONS._indexerType + " not found!");
     Check(funnyIndexer != null,
             "Indexer Funny not found!");
-    //indexer.loadIndex();
-    funnyIndexer.loadIndex();
+    indexer.loadIndex();
+    //funnyIndexer.loadIndex();
     QueryHandler handler = new QueryHandler(SearchEngine.OPTIONS, indexer, funnyIndexer);
 
     // Establish the serving environment

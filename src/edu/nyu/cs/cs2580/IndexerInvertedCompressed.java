@@ -44,6 +44,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
   private Map<Integer,Vector<Integer>> _joySkipList = new HashMap<>();
   private Map<Integer,Vector<Integer>> _sadSkipList = new HashMap<>();
   private Map<Integer,Vector<Integer>> _funnySkipList = new HashMap<>();
+  private HashMap<String, Integer> _startIndexes = new HashMap<>();
 
   public IndexerInvertedCompressed() {
   }
@@ -317,7 +318,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     while ((line = docReader.readLine()) != null) {
       List<String> cols = stringTokenizer(line);
 
-      String docPath = corpusDir + "/" + cols.get(0) + ".txt";
+      String docPath = corpusDir + "/" + cols.get(0);
 
       File docFile = new File(docPath);
 
@@ -683,14 +684,14 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
       boolean allQueryTermsInSameDoc = true;
       for(String term : queryTokens){
         if (!_dictionary.containsKey(term)) {
-          return null;
+          return new NextDoc( true ,null, beginIndex);
         }
         loadTermIfNotLoaded(term, emotionType);
         idArray.add(next(term,docid, emotionType, beginIndex, endIndex));
       }
       for(int id : idArray){
         if(id == -1){
-          return null;
+          return new NextDoc( endSearch ,null, beginIndex);
         }
         if(sameDocId == -1){
           sameDocId = id;
@@ -704,11 +705,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
       }
       if(allQueryTermsInSameDoc){
 
-        HashMap<String, Integer> indexes = new HashMap<>();
-        for(String queryTerm: queryTokens){
-          indexes.put(queryTerm, sameDocId);
-        }
-        return new NextDoc( endSearch ,_documents.get(sameDocId), indexes);
+        return new NextDoc( endSearch ,_documents.get(sameDocId), beginIndex);
       }
       docid=maxId-1;
     }
@@ -721,7 +718,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     boolean allQueryTermsInSameDoc = true;
     for(String term : query._tokens){
       if (!_dictionary.containsKey(term)) {
-        return null;
+        return new NextDoc( true ,null, beginIndex);
       }
       loadTermIfNotLoaded(term, emotionType);
       idArray.add(next(term,docid, emotionType, beginIndex, endIndex));
@@ -733,7 +730,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
 
     for(int id : idArray){
       if(id == -1){
-        return null;
+        return new NextDoc( endSearch,null, beginIndex);
       }
       if(sameDocId == -1){
         sameDocId = id;
@@ -746,18 +743,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
       }
     }
     if(allQueryTermsInSameDoc){
-
-      HashMap<String, Integer> indexes = new HashMap<>();
-      for(String queryTerm: query._tokens){
-        indexes.put(queryTerm, sameDocId);
-      }
-      for (Vector<String> phraseTerms : query._phraseTokens) {
-        for(String phraseToken : phraseTerms) {
-          indexes.put(phraseToken, 0);
-        }
-      }
-
-      return new NextDoc( endSearch ,_documents.get(sameDocId), indexes);
+      return new NextDoc( endSearch ,_documents.get(sameDocId), beginIndex);
     }
     return nextDocPhrase(query, maxId-1, emotionType, beginIndex, endIndex);
   }
@@ -814,12 +800,18 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     endSearch = false;
     Vector <Integer> PostingList = getPostingListforTerm(term, emotionType);
     Vector <Integer> SkipList = getSkipListforTerm(term, emotionType);
-    for(int i=beginIndex.get(term); i<=endIndex; i++){
+
+    if(docid == -1){
+      return SkipList.get(0);
+    }
+
+    for(int i=0; i<=endIndex && i<SkipList.size(); i++){
         if (PostingList.get(SkipList.get(i)) == docid){
           return SkipList.get(i+1);
         }
     }
-    if(endIndex == SkipList.get(SkipList.size() -1)){
+
+    if(endIndex >= SkipList.size() -1){
       endSearch = true;
     }
     return -1;
