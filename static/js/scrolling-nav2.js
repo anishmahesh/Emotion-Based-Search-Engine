@@ -110,4 +110,31 @@ $( document ).ready(function() {
                     return false;
             }
         });
+                    $("#searchBar").autocomplete(
+                                          {
+                                          search: function () {},
+                                          source: function (request, response)
+                                          {
+                                          $.ajax(
+                                                 {
+                                                 url: "/fill?term="+$("#searchBar").val(),
+                                                 dataType: "json",
+                                                 success: function (data)
+                                                 {
+                                                    console.log(data);
+                                                    console.log(data.autofill);
+                                                    response(data.autofill);
+                                                 }
+                                                 });
+                                          },
+                                          minLength: 1,
+                                          select: function (event, ui)
+                                          {
+                                                 var test = ui.item ? ui.item.id : 0;
+                                                 if (test > 0)
+                                                 {
+                                                    alert(test);
+                                                 }
+                                          }
+                    });
 });
