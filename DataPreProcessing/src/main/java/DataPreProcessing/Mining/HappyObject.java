@@ -10,7 +10,7 @@ public class HappyObject extends EmotionObject implements Comparable<HappyObject
     }
 
     public int compareTo(HappyObject o) {
-        if (this.joy > o.joy){
+        if (this.joy == o.joy){
             return 0;
         }
         return (this.joy > o.joy) ? 1 : -1;

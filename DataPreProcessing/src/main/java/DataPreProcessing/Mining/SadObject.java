@@ -9,7 +9,7 @@ public class SadObject extends EmotionObject implements Comparable<SadObject> {
     }
 
     public int compareTo(SadObject o) {
-        if (this.sadness > o.sadness){
+        if (this.sadness == o.sadness){
             return 0;
         }
         return (this.sadness > o.sadness) ? 1 : -1;

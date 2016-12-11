@@ -99,8 +99,8 @@ public class Emotion {
         Collections.sort(docHappy, Collections.reverseOrder());
         Collections.sort(docSad, Collections.reverseOrder());
 
-        createFile(docHappy, "data/analyzed/happy.tsv");
-        createFile(docSad, "data/analyzed/sad.tsv");
+        createFile(docHappy, "data/happy.tsv");
+        createFile(docSad, "data/sad.tsv");
     }
 
     private <T extends  EmotionObject> ArrayList<T> normalizeObjects(ArrayList<T> docEmotions) {
@@ -110,7 +110,7 @@ public class Emotion {
     public <T extends  EmotionObject> void createFile (ArrayList<T> docs, String outputPath) throws IOException {
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputPath));
         for(T doc : docs){
-            bufferedWriter.write(doc.name + "\t" + doc.anger + "\t" + doc.disgust + "\t" + doc.fear + "\t" + doc.joy + "\t" + doc.sadness);
+            bufferedWriter.write(doc.name + "\t" + "\t" +  + doc.joy + "\t" + "\t"  + doc.sadness);
             bufferedWriter.newLine();
         }
         bufferedWriter.close();
