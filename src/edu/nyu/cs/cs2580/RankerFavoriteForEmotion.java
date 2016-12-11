@@ -85,13 +85,13 @@ public class RankerFavoriteForEmotion extends Ranker{
 
         double queryLikelyhoodProbability = 1.0;
         double totalTermsInDoc = ((DocumentIndexed)doc).getTotalTerms();
-        double totalTermsInCourpus = _indexer.totalTermFrequency();
+        double totalTermsInCorpus = _indexer.totalTermFrequency();
         double lambda = 0.5;
 
         for(String queryToken : query._tokens){
             double termFrequency = _indexer.documentTermFrequency(queryToken,doc._docid, query._emotionType);
             double corpusTermFrequency = _indexer.corpusDocFrequencyByTerm(queryToken, query._emotionType);
-            queryLikelyhoodProbability *= (1-lambda)*(termFrequency/totalTermsInDoc)+(lambda)*(corpusTermFrequency/totalTermsInCourpus);
+            queryLikelyhoodProbability *= (1-lambda)*(termFrequency/totalTermsInDoc)+(lambda)*(corpusTermFrequency/totalTermsInCorpus);
         }
 
         if (query instanceof QueryPhrase) {
@@ -99,7 +99,7 @@ public class RankerFavoriteForEmotion extends Ranker{
                 for(String queryToken : phraseTokens){
                     double termFrequency = _indexer.documentTermFrequency(queryToken,doc._docid, query._emotionType);
                     double corpusTermFrequency = _indexer.corpusDocFrequencyByTerm(queryToken, query._emotionType);
-                    queryLikelyhoodProbability *= (1-lambda)*(termFrequency/totalTermsInDoc)+(lambda)*(corpusTermFrequency/totalTermsInCourpus);
+                    queryLikelyhoodProbability *= (1-lambda)*(termFrequency/totalTermsInDoc)+(lambda)*(corpusTermFrequency/totalTermsInCorpus);
                 }
             }
         }

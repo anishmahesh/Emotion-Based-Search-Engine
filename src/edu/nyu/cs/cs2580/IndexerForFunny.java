@@ -473,7 +473,7 @@ public class IndexerForFunny extends Indexer implements Serializable {
 
         }
 
-        String docsDir = _options._indexPrefix + "/Documents";
+        String docsDir = _options._funnyPrefix + "/index/Documents";
 
         compressDocTermFile(docsDir, doc._docid, termIds);
 

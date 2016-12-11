@@ -1,8 +1,5 @@
 package DataPreProcessing.Mining;
 
-import com.ibm.watson.developer_cloud.alchemy.v1.model.DocumentEmotion;
-import com.sun.xml.internal.ws.api.model.wsdl.editable.EditableWSDLMessage;
-
 /**
  * Created by naman on 12/2/2016.
  */
