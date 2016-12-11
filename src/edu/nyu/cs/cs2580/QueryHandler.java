@@ -1,7 +1,9 @@
 package edu.nyu.cs.cs2580;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Vector;
 
 import com.sun.net.httpserver.Headers;
@@ -35,6 +37,8 @@ class QueryHandler implements HttpHandler {
     public int _pagination = 1;
 
     public static boolean moreDocFlag = false;
+
+    public String _autoCompleteTerm = "";
 
     // The type of the ranker we will be using.
     public enum RankerType {
@@ -100,6 +104,8 @@ class QueryHandler implements HttpHandler {
           }
         } else if ( key.toLowerCase().equals("pagination")){
           _pagination = Integer.parseInt(val);
+        } else if (key.toLowerCase().equals("term")){
+          _autoCompleteTerm = val;
         }
       }  // End of iterating over params
     }
@@ -173,13 +179,21 @@ class QueryHandler implements HttpHandler {
     // Validate the incoming request.
     String uriQuery = exchange.getRequestURI().getQuery();
     String uriPath = exchange.getRequestURI().getPath();
+
+    System.out.println("URI Path ::: "+uriPath);
+    if (uriPath.equals("/fill")) {
+      System.out.println("\n\nFound Fill\n\n");
+      AutoCompleteResponse acr = new AutoCompleteResponse();
+      CgiArguments cgiArgs = new CgiArguments(uriQuery.toLowerCase());
+
+      respondWithMsg(exchange, acr.getDataFor(cgiArgs._autoCompleteTerm,_indexer._options));
+    }
+
     if (uriPath == null || uriQuery == null) {
       HTMLOutputFormatter html = new HTMLOutputFormatter();
       respondWithMsg(exchange,html.getHome());
     }
-    if (!uriPath.equals("/search")) {
-      respondWithMsg(exchange, "Only /search is handled!");
-    }
+
     System.out.println("Query: " + uriQuery);
 
     // Process the CGI arguments.
@@ -209,7 +223,8 @@ class QueryHandler implements HttpHandler {
       scoredDocs =
               ranker.runQuery(processedQuery, cgiArgs._numResults);
     }
-
+    QueryLogger ql = new QueryLogger(cgiArgs._query);
+    ql.writeToFile();
 
     // Ranking.
     StringBuffer response = new StringBuffer();
@@ -224,6 +239,7 @@ class QueryHandler implements HttpHandler {
       default:
         // nothing
     }
+
     respondWithMsg(exchange, response.toString());
     System.out.println("Finished query: " + cgiArgs._query);
   }
