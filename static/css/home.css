@@ -147,10 +147,10 @@ button:focus {
 
 .ui-autocomplete {
     position: absolute;
-    z-index: 1000;
+    z-index: 2000;
     cursor: default;
     padding: 0;
-    top:-4px;
+    left:2px;
     margin-lefty2px;
     margin-right:2px;
     list-style: none;
@@ -196,8 +196,27 @@ button:focus {
     color:#2f2f2f;
 }
 
-.ui-menu .ui-menu-item a.ui-corner-all:hover, .ui-menu .ui-menu-item a.ui-corner-all:focus, .ui-menu .ui-menu-item a.ui-corner-all:active {
-    background:#ff8a00!important;
-    color:#000;
-    border-radius:0;
+
+
+.ui-state-active,
+.ui-widget-content .ui-state-active,
+.ui-widget-header .ui-state-active,
+.ui-menu-item:hover,
+.ui-menu-item a:hover,
+.ui-widget-content .ui-state-focus,
+.ui-widget-header .ui-state-focus,
+.ui-widget-content .ui-state-hover,
+.ui-widget-header .ui-state-hover,
+.ui-menu .ui-menu-item a.ui-state-focus,
+.ui-menu .ui-menu-item a.ui-state-active,
+.ui-menu .ui-menu-item a
+{
+    font-weight:200;
+    background-color: #f1f1f1;
+    color:#2f2f2f;
+    margin:0;
+    display:block;
+    border:none;
 }
+
+

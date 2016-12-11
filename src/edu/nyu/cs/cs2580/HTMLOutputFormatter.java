@@ -43,12 +43,12 @@ public class HTMLOutputFormatter {
                 "                <meta name=\"description\" content=\"\">\n" +
                 "                    <meta name=\"author\" content=\"\">\n" +
                 "                        <title>Bit Search</title>\n" +
+                "                        <link rel=\"stylesheet\" href=\"//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css\">\n"+
                 "                        <!-- Custom CSS -->\n" +
                 "                        <!-- Bootstrap Core CSS -->\n" +
                 "                        <link href=\"static/css/bootstrap.min.css\" rel=\"stylesheet\"/>\n" +
-                "                        <link href=\"static/css/home.css\" rel=\"stylesheet\"/>\n" +
                 "                        <link href=\"static/css/card.css\" rel=\"stylesheet\"/>\n" +
-                "                        <link rel=\"stylesheet\" href=\"//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css\">\n"+
+                "                        <link href=\"static/css/home.css\" rel=\"stylesheet\"/>\n" +
                 "                        <!-- Custom CSS -->\n" +
                 "                        <link href=\"static/css/style2.css\" rel=\"stylesheet\"/>\n" +
                 "                        \n" +
@@ -82,7 +82,7 @@ public class HTMLOutputFormatter {
                 "                        <span class=\"icon-bar\"></span>\n" +
                 "                        <span class=\"icon-bar\"></span>\n" +
                 "                    </button>\n" +
-                "                    <a class=\"page-scroll\" href=\"#page-top\"><style=\"margin:0;padding-bottom:10px!\"><img src=\"static/images/logo.png\" height=\"55\" width=\"154\"></style></a>\n" +
+                "                    <a class=\"page-scroll\" href=\"./\"><style=\"margin:0;padding-bottom:10px!\"><img src=\"static/images/logo.png\" height=\"55\" width=\"154\"></style></a>\n" +
                 "                </div>\n" +
                 "                \n" +
                 "                \n" +
@@ -106,7 +106,7 @@ public class HTMLOutputFormatter {
                 "                </div>\n" +
                 "                <!-- /.navbar-collapse -->\n" +
                 "                <div id=\"wrapper\" style=\"text-align: center\">\n" +
-                "                    <input type=\"search\" id=\"searchBar\" placeholder=\"Search...\" style=\"height:36px;width:93%;\"/>\n" +
+                "                    <input type=\"search\" id=\"searchBar\" placeholder=\"Search...\" style=\"height:36px;width:93%;padding-top:0px;\"/>\n" +
                 "                    <button class=\"icon\" id=\"submitSearch\" style=\"height:36px\"><i class=\"fa fa-search\"></i></button>\n" +
                 "                    <div class=\"facebook-reaction\">\n" +
                 "                        <!-- container div for reaction system -->\n" +
@@ -134,7 +134,6 @@ public class HTMLOutputFormatter {
                 "    <section id=\"intro\" class=\"intro-section\">\n" +
                 "        <div class=\"container\">"+
                 "<div class=\"wrapper\" style=\"margin-bottom:100px\"></div>");
-        System.out.println(header);
         return header;
     }
 
@@ -159,7 +158,9 @@ public class HTMLOutputFormatter {
                 "    <script src=\"static/js/jquery.easing.min.js\"></script>\n" +
                 "    <script src=\"static/js/scrolling-nav2.js\"></script>\n" +
                 "    <script src=\"static/js/reaction.js\"></script>\n"+
-                "\n" +
+                        "    <script src=\"https://code.jquery.com/ui/1.12.1/jquery-ui.js\"></script>\n" +
+
+                        "\n" +
                 "</body>\n" +
                 "\n" +
                 "</html>");
@@ -208,7 +209,7 @@ public class HTMLOutputFormatter {
                 "    <!-- The #page-top ID is part of the scrolling feature - the data-spy and data-target are part of the built-in Bootstrap scrollspy function -->\n" +
                 "    <body>\n" +
                 "        <!-- Navigation -->\n" +
-                "        <nav class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\" style=\"background:#f9f9f9 !important;border:none;height:20px\">\n" +
+                "        <nav class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\" style=\"background:#f7f7f7 !important;border:none;height:20px\">\n" +
                 "            <div class=\"container\">\n" +
                 "                <div class=\"navbar-header page-scroll\">\n" +
                 "                    <button type=\"button\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\".navbar-ex1-collapse\">\n" +
@@ -242,10 +243,10 @@ public class HTMLOutputFormatter {
                 "        </nav>\n" +
                 "        <div class=\"center-div\">\n" +
                 "            <div id=\"wrapper\" style=\"text-align: center;margin-bottom:20px;\">\n" +
-                "                <img src=\"static/images/logo.png\" class=\"center-block img-responsive\" height=\"70\" width=\"196\">\n" +
+                "                <a class=\"page-scroll\" href=\"./\"><style=\"margin:0;padding-bottom:10px!\"><img src=\"static/images/logo.png\" class=\"center-block img-responsive\" height=\"70\" width=\"196\"></a>\n" +
                 "                    </div>\n" +
                 "            <div id=\"wrapper\" style=\"text-align: center\">\n" +
-                "                <input type=\"search\" id=\"searchBar\" placeholder=\"Search...\" style=\"height:36px;width:400px;max-width:550px;horizontal-align:text-center\"/>\n" +
+                "                <input type=\"search\" id=\"searchBar\" placeholder=\"Search...\" style=\"height:36px;width:400px;max-width:550px;padding-top:0px;horizontal-align:text-center\"/>\n" +
                 "                <button class=\"icon\" id=\"submitSearch\" style=\"height:36px\"><i class=\"fa fa-search\"></i></button>\n" +
                 "                <div class=\"facebook-reaction\">\n" +
                 "                    <!-- container div for reaction system -->\n" +
@@ -267,12 +268,12 @@ public class HTMLOutputFormatter {
                 "        </div>\n" +
                 "    </body>\n" +
                 "    <!-- Contact Section -->\n" +
-                "    <section id=\"contact\" class=\"contact-section\" style=\"position:absolute;bottom:0px;width:100%;background:#f9f9f9\">\n" +
+                "    <section id=\"contact\" class=\"contact-section\" style=\"position:absolute;bottom:0px;width:100%;background:#f7f7f7\">\n" +
                 "        <div class=\"row\" style=\"height:20px\">\n" +
                 "            <div class=\"footer-text\">\n" +
                 "                <span style=\"bottom:14px;\">Developed towards partial course requirement for CSGA2580 - Group 8\n" +
                 "                </span>\n" +
-                "                <span style=\"right:10px;position:absolute;bottom:14px;\"><img src=\"static/images/haha.png\" height=15px width=15px style=\"opacity:0.4;magrin-right:10px;\"><img src=\"static/images/sad.png\" height=15px width=15px style=\"opacity:0.4;magrin-right:10px;\"><img src=\"static/images/happy.png\" height=15px width=15px style=\"opacity:0.4;magrin-right:10px;\">\n" +
+                "                <span style=\"right:10px;position:absolute;bottom:14px;\"><img src=\"static/images/footer.png\" height=18px width=24px style=\"opacity:0.3;margin-top:4px;magrin-right:10px;\">\n" +
                 "                    </span>\n" +
                 "            </div>\n" +
                 "        </div>\n" +
