@@ -7,9 +7,7 @@ import org.json.simple.JSONObject;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by sanchitmehta on 10/12/16.
@@ -32,11 +30,16 @@ public class AutoCompleteResponse {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            int count=0;
+            //results = sortByValue(results);
             if(results.size() != 0){
                 for(String result : results.keySet()){
+                    count++;
                     result = result.replace("+"," ");
                     result = result.substring(0, 1).toUpperCase() + result.substring(1);
                     list.add(result);
+                    if(count==_options._maxAutoCompleteResponses)
+                        break;
                 }
                 obj.put("autofill", list);
                 return obj.toString();
@@ -67,5 +70,26 @@ public class AutoCompleteResponse {
             //pass
         }
         return results;
+    }
+
+    public static <K, V extends Comparable<? super V>> Map<K, V>
+    sortByValue( Map<K, V> map )
+    {
+        List<Map.Entry<K, V>> list =
+                new LinkedList<Map.Entry<K, V>>( map.entrySet() );
+        Collections.sort( list, new Comparator<Map.Entry<K, V>>()
+        {
+            public int compare( Map.Entry<K, V> o1, Map.Entry<K, V> o2 )
+            {
+                return (o1.getValue()).compareTo( o2.getValue() );
+            }
+        } );
+
+        Map<K, V> result = new LinkedHashMap<K, V>();
+        for (Map.Entry<K, V> entry : list)
+        {
+            result.put( entry.getKey(), entry.getValue() );
+        }
+        return result;
     }
 }
