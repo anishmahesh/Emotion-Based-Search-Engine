@@ -8,8 +8,7 @@ import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import org.apache.http.Header;
@@ -39,7 +38,7 @@ public class App extends WebCrawler {
 
         // Only accept the url if it is in the "theoninon" domain and protocol is "http".
         return !FILTERS.matcher(href).matches()
-                && href.contains("theonion.com");
+                && href.contains("goodnewsnetwork.org");
         //return href.contains("unrealtimes");
         //return true;
     }
@@ -78,13 +77,22 @@ public class App extends WebCrawler {
                         System.out.println("# URL :::::: "+url);
                     }
                     if(htmlParseData.getTitle()!=null) {
-                        if (htmlParseData.getText().length() > 3000 && domain.contains("theonion") && !visited.contains(url)) {
+                        if (htmlParseData.getText().length() > 3000 && !visited.contains(url)) {
                             String title = htmlParseData.getTitle();
                             if (title != null)
-                                title = title.replace(" - The Onion - America's Finest News Source", "");
+                                title = title.replace(" - Good News Network", "");
                             visited.add(url);
+                            List<String> titleWords = stringTokenizer(title);
+                            StringBuilder fileName = new StringBuilder();
+                            int i = 0;
+                            for (String word : titleWords) {
+                                if (i == 4)
+                                    break;
+                                fileName.append(word).append('_');
+                                i++;
+                            }
                             Writer writer = new BufferedWriter(new OutputStreamWriter(
-                                    new FileOutputStream("./data/" + docid + ".txt"), "utf-8"));
+                                    new FileOutputStream("./crawl/data/joy2/" + fileName.substring(0, fileName.length()-1) + ".txt"), "utf-8"));
                             writer.write(title + "\n" + url + "\n" + OneLiner.getMainText(htmlParseData.getHtml()));
                             writer.close();
                         }
@@ -107,5 +115,18 @@ public class App extends WebCrawler {
             }
         }
         logger.debug("=============");
+    }
+
+    private List<String> stringTokenizer(String str) {
+        List<String> tokenList = new ArrayList<String>();
+        try {
+            StringTokenizer st = new StringTokenizer(str);
+            while (st.hasMoreElements()) {
+                tokenList.add(st.nextElement().toString());
+            }
+        }catch (Exception e) {
+            //IT is null
+        }
+        return tokenList;
     }
 }

@@ -15,6 +15,9 @@ import edu.uci.ics.crawler4j.fetcher.PageFetcher;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+
 
 public class Controller {
     private static final Logger logger = LoggerFactory.getLogger(Controller.class);
@@ -31,20 +34,21 @@ public class Controller {
      * crawlStorageFolder is a folder where intermediate crawl data is
      * stored.
      */
-        String crawlStorageFolder = "./data/";
+        String crawlStorageFolder = "./crawl/data/intermediate/";
 
     /*
      * numberOfCrawlers shows the number of concurrent threads that should
      * be initiated for crawling.
      */
-        int numberOfCrawlers = 20;
+        int numberOfCrawlers = 1;
 
         CrawlConfig config = new CrawlConfig();
 
         config.setCrawlStorageFolder(crawlStorageFolder);
         //config.setMaxPagesToFetch(100);
 
-        config.setPolitenessDelay(100);
+        config.setPolitenessDelay(500);
+        config.setMaxDepthOfCrawling(1500);
 
 
     /*
@@ -73,13 +77,15 @@ public class Controller {
      * URLs that are fetched and then the crawler starts following links
      * which are found in these pages
      */
-        controller.addSeed("http://www.theonion.com/");
-        controller.addSeed("http://www.theonion.com/section/politics/");
-        controller.addSeed("http://www.theonion.com/section/sports/");
-        controller.addSeed("http://www.theonion.com/section/local/");
-        controller.addSeed("http://www.theonion.com/section/business");
-        controller.addSeed("http://www.theonion.com/section/entertainment/");
-        controller.addSeed("http://www.theonion.com/section/science-technology/");
+
+//        BufferedReader reader = new BufferedReader(new FileReader("/Users/anish/Desktop/good-urls-1"));
+//        String line;
+//        while ((line = reader.readLine()) != null) {
+//            controller.addSeed(line);
+////            System.out.println(line);
+//        }
+//        System.out.println("Added the seeds");
+        controller.addSeed("http://www.goodnewsnetwork.org/");
         //controller.addSeed("http://www.ics.uci.edu/~lopes/");
         //controller.addSeed("http://www.ics.uci.edu/~welling/");
 
