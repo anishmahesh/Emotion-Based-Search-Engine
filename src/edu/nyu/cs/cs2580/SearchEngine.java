@@ -79,6 +79,9 @@ public class SearchEngine {
     //Multiplier for Threshold
     public String _multiplierForThreshold = null;
 
+    //Max limit of auto complete responses
+    public int _maxAutoCompleteResponses = 0;
+
     // Additional group specific configuration can be added below.
 
     /**
@@ -108,6 +111,8 @@ public class SearchEngine {
       // Populate global options.
       _corpusPrefix = options.get("corpus_prefix");
       Check(_corpusPrefix != null, "Missing option: corpus_prefix!");
+
+      _maxAutoCompleteResponses = Integer.parseInt(options.get("autocomp_response"));
 
       _dataPrefix = options.get("data_prefix");
       Check(_dataPrefix != null, "Missing option: data_prefix");
