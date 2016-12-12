@@ -40,14 +40,14 @@ public class Controller {
      * numberOfCrawlers shows the number of concurrent threads that should
      * be initiated for crawling.
      */
-        int numberOfCrawlers = 1;
+        int numberOfCrawlers = 50;
 
         CrawlConfig config = new CrawlConfig();
 
         config.setCrawlStorageFolder(crawlStorageFolder);
         //config.setMaxPagesToFetch(100);
 
-        config.setPolitenessDelay(500);
+        config.setPolitenessDelay(200);
         config.setMaxDepthOfCrawling(1500);
 
 
