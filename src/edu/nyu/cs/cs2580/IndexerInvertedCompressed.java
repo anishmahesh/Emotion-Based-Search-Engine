@@ -19,9 +19,6 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
   private int indexCount = 0;
   private int partCount = 0;
 
-  public int maxNumViews = 0;
-  public float maxPageRank = 0.0f;
-
   private boolean endSearch = false;
 
   // Maps each term to their integer representation
@@ -56,6 +53,8 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
 
   @Override
   public void constructIndex() throws IOException {
+    System.out.println("Starting indexing for Joy and Sad");
+
     String dataDir = _options._dataPrefix;
     String corpusDir = _options._corpusPrefix;
     String indexDir  = _options._indexPrefix;
@@ -414,11 +413,6 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
 
       }
     }
-
-    String maxVal = _options._corpusPrefix + "maxVals.txt";
-    BufferedWriter writer = new BufferedWriter(new FileWriter(maxVal, true));
-    writer.write(maxNumViews + "\n" + maxPageRank);
-    writer.close();
 
     indexCount++;
     System.out.println("Constructing partial index number: " + indexCount);

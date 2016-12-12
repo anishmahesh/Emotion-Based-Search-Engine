@@ -39,6 +39,8 @@ public class IndexerForFunny extends Indexer implements Serializable {
 
     @Override
     public void constructIndex() throws IOException {
+        System.out.println("Starting indexing for Funny");
+
         String corpusDir = _options._funnyPrefix + "/corpus";
         String indexDir  = _options._funnyPrefix + "/index";
 
