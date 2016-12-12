@@ -1,19 +1,16 @@
 package edu.nyu.cs.cs2580;
 
-
-import java.util.HashMap;
+import java.util.Vector;
 
 /**
  * Created by naman on 12/9/2016.
  */
 public class NextDoc {
     boolean stopRepeat;
-    HashMap<String,Integer> prevDocIndex;
-    Document doc;
+    Vector<Document> documnets;
 
-    public NextDoc(boolean stopRepeat, Document doc, HashMap<String, Integer> prevDocIndex){
+    public NextDoc(boolean stopRepeat, Vector<Document> documents){
         this.stopRepeat = stopRepeat;
-        this.doc = doc;
-        this.prevDocIndex = prevDocIndex;
+        this.documnets = documents;
     }
 }

@@ -667,51 +667,71 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     return null;
   }
 
-  public NextDoc nextDocForEmotion(Query query, int docid, HashMap<String, Integer> beginIndex, int endIndex) {
-
+  public NextDoc nextDocForEmotion(Query query, int endIndex) {
     if(query instanceof QueryPhrase){
-      return nextDocPhrase((QueryPhrase) query, docid, query._emotionType, beginIndex, endIndex);
+      //return nextDocPhrase((QueryPhrase) query, query._emotionType, endIndex);
     } else {
-      return nextDocIndividualTokens(query._tokens, docid, query._emotionType, beginIndex, endIndex);
+      return nextDocIndividualTokens(query._tokens, query._emotionType, endIndex);
     }
+    return null;
   }
 
-  public NextDoc nextDocIndividualTokens(Vector<String> queryTokens, int docid, EmotionType emotionType, HashMap<String, Integer> beginIndex, int endIndex) {
-    while (true) {
-      List<Integer> idArray = new ArrayList<>();
-      int maxId = -1;
-      int sameDocId = -1;
-      boolean allQueryTermsInSameDoc = true;
-      for(String term : queryTokens){
-        if (!_dictionary.containsKey(term)) {
-          return new NextDoc( true ,null, beginIndex);
-        }
-        loadTermIfNotLoaded(term, emotionType);
-        idArray.add(next(term,docid, emotionType, beginIndex, endIndex));
-      }
-      for(int id : idArray){
-        if(id == -1){
-          return new NextDoc( endSearch ,null, beginIndex);
-        }
-        if(sameDocId == -1){
-          sameDocId = id;
-        }
-        if(id != sameDocId){
-          allQueryTermsInSameDoc = false;
-        }
-        if(id > maxId){
-          maxId = id;
-        }
-      }
-      if(allQueryTermsInSameDoc){
-
-        return new NextDoc( endSearch ,_documents.get(sameDocId), beginIndex);
-      }
-      docid=maxId-1;
+  public NextDoc nextDocIndividualTokens(Vector<String> queryTokens, EmotionType emotionType, int endIndex) {
+    HashSet<Integer> commonDocid = new HashSet<>();
+    endSearch = false;
+    if(queryTokens.size() < 1 ){
+      endSearch = true;
+      return new NextDoc(endSearch,null);
     }
+
+    loadTermIfNotLoaded(queryTokens.get(0), emotionType);
+    Vector <Integer> PostingList = getPostingListforTerm(queryTokens.get(0), emotionType);
+    Vector <Integer> SkipList = getSkipListforTerm(queryTokens.get(0), emotionType);
+
+    for(int i=0, k=0; k<=endIndex ;i += PostingList.get(i+1) + 2, k++){
+      if(k >= SkipList.size()){
+        endSearch = true;
+        break;
+      }
+      commonDocid.add(PostingList.get(i));
+    }
+
+    if(queryTokens.size() == 1){
+      Vector<Document> documents = new Vector<>();
+      for (int id: commonDocid){
+        documents.add(_documents.get(id));
+      }
+      return new NextDoc(endSearch,documents);
+    }
+
+    for(int i=1; i<queryTokens.size(); i++) {
+      loadTermIfNotLoaded(queryTokens.get(i), emotionType);
+      PostingList = getPostingListforTerm(queryTokens.get(i), emotionType);
+      SkipList = getSkipListforTerm(queryTokens.get(i), emotionType);
+      HashSet<Integer> termPostingList = new HashSet<>();
+
+      for (int j = 0, k = 0; k <= endIndex; j += PostingList.get(j + 1) + 2, k++) {
+        if (k >= SkipList.size()) {
+          endSearch = true;
+          break;
+        }
+        termPostingList.add(PostingList.get(j));
+      }
+
+      commonDocid.retainAll(termPostingList);
+      if(commonDocid.size() < 1){
+        return new NextDoc(endSearch,null);
+      }
+    }
+
+    Vector<Document> documents = new Vector<>();
+    for (int id: commonDocid){
+      documents.add(_documents.get(id));
+    }
+    return new NextDoc(endSearch,documents);
   }
 
-  public NextDoc nextDocPhrase(QueryPhrase query, int docid, EmotionType emotionType, HashMap<String, Integer> beginIndex, int endIndex){
+ /* public NextDoc nextDocPhrase(QueryPhrase query, int docid, EmotionType emotionType, HashMap<String, Integer> beginIndex, int endIndex){
     List<Integer> idArray = new ArrayList<>();
     int maxId = -1;
     int sameDocId = -1;
@@ -816,7 +836,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     }
     return -1;
   }
-
+*/
   private Vector<Integer> getPostingListforTerm(String term, EmotionType emotionType){
     return getPostingByEmotion(emotionType).get(_dictionary.get(term));
   }

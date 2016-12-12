@@ -18,56 +18,56 @@ public class RankerFavoriteForEmotion extends Ranker{
     @Override
     public Vector<ScoredDocument> runQuery(Query query, int numResults) {
         Queue<ScoredDocument> rankQueue = new PriorityQueue<ScoredDocument>();
-        NextDoc nextDoc = null;
-
-        int docid = -1;
         int threshold = Integer.parseInt(_options._postingThreshold);
         int multiplier = Integer.parseInt(_options._multiplierForThreshold);
-        HashMap<String, Integer> startIndex = new HashMap<>();
-        int endIndex = (threshold * multiplier) + 1;
+        int endIndex = threshold * multiplier;
         int docFetched = 0;
-
-        for(String queryTerm : query._tokens){
-            startIndex.put(queryTerm, 0);
-        }
-        HashSet<ScoredDocument> match = new HashSet<>();
+        HashSet<Document> match = new HashSet<>();
         Vector<ScoredDocument> intermediateResult = new Vector<>();
 
         while(true) {
-            while ((nextDoc = _indexer.nextDocForEmotion(query, docid, startIndex, endIndex)).doc != null) {
-                docFetched++;
-                rankQueue.add(scoreDocument(nextDoc.doc, query));
-                if (rankQueue.size() > (numResults * query._pagination) +1 ) {
-                    rankQueue.poll();
+            NextDoc nextDoc = _indexer.nextDocForEmotion(query, endIndex);
+            if (nextDoc.documnets != null) {
+                for (Document doc : nextDoc.documnets) {
+                    docFetched++;
+                    rankQueue.add(scoreDocument(doc, query));
+                    if (rankQueue.size() > (numResults * query._pagination) + 1) {
+                        rankQueue.poll();
+                    }
                 }
-                docid = nextDoc.doc._docid;
-            }
 
-            if(docFetched > query._pagination * numResults){
-                CgiArguments.moreDocFlag = true;
+                if (docFetched > query._pagination * numResults) {
+                    CgiArguments.moreDocFlag = true;
+                } else {
+                    CgiArguments.moreDocFlag = false;
+                }
+
+                Vector<ScoredDocument> results = new Vector<ScoredDocument>();
+                ScoredDocument scoredDoc = null;
+                while ((scoredDoc = rankQueue.poll()) != null) {
+                    if (!match.contains(scoredDoc._doc)) {
+                        match.add(scoredDoc._doc);
+                        results.add(scoredDoc);
+                    }
+                }
+
+                Collections.sort(results, Collections.reverseOrder());
+
+                for (int i = 0; i <= numResults * query._pagination && i < results.size(); i++) {
+                    intermediateResult.add(results.get(i));
+                }
+
+                if (intermediateResult.size() >= (numResults * query._pagination) + 1 || nextDoc.stopRepeat == true) {
+                    break;
+                } else {
+                    endIndex = threshold * ++multiplier;
+                }
             } else {
-                CgiArguments.moreDocFlag = false;
-            }
-
-            docFetched = 0;
-            for(String queryTerm : query._tokens){
-                startIndex.put(queryTerm, endIndex+1);
-            }
-            endIndex = threshold * ++multiplier;
-            Vector<ScoredDocument> results = new Vector<ScoredDocument>();
-            ScoredDocument scoredDoc = null;
-            while ((scoredDoc = rankQueue.poll()) != null) {
-                if(!match.contains(scoredDoc)) {
-                    results.add(scoredDoc);
+                if (intermediateResult.size() >= (numResults * query._pagination) + 1 || nextDoc.stopRepeat == true) {
+                    break;
+                } else {
+                    endIndex = threshold * ++multiplier;
                 }
-            }
-            Collections.sort(results, Collections.reverseOrder());
-
-            for(int i=0; i<numResults && i<results.size(); i++){
-                intermediateResult.add(results.get(i));
-            }
-            if(intermediateResult.size() >= (numResults * query._pagination) + 1 || nextDoc.stopRepeat == true){
-                break;
             }
         }
 

@@ -36,6 +36,8 @@ public class RankerFavorite extends Ranker {
 
     if(documentFetched > query._pagination * numResults){
       CgiArguments.moreDocFlag = true;
+    } else {
+      CgiArguments.moreDocFlag = false;
     }
 
     Vector<ScoredDocument> results = new Vector<ScoredDocument>();
