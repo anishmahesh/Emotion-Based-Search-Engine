@@ -289,7 +289,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
         }
       }
       file.delete();
-      }
+    }
   }
 
   private void processDocFiles(String dataDir, String corpusDir, String indexDir) throws IOException {
@@ -651,11 +651,6 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
   /**
    * In HW2, you should be using {@link DocumentIndexed}.
    */
-
-  public NextDoc nextDocForEmotion(Query query, int docid, int beginIndex, int endIndex){
-    return null;
-  }
-
   @Override
   public Document nextDoc(Query query, int docid){
     return null;
@@ -663,11 +658,10 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
 
   public NextDoc nextDocForEmotion(Query query, int endIndex) {
     if(query instanceof QueryPhrase){
-      //return nextDocPhrase((QueryPhrase) query, query._emotionType, endIndex);
+      return nextDocPhrase((QueryPhrase) query, query._emotionType, endIndex);
     } else {
       return nextDocIndividualTokens(query._tokens, query._emotionType, endIndex);
     }
-    return null;
   }
 
   public NextDoc nextDocIndividualTokens(Vector<String> queryTokens, EmotionType emotionType, int endIndex) {
@@ -725,112 +719,84 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     return new NextDoc(endSearch,documents);
   }
 
- /* public NextDoc nextDocPhrase(QueryPhrase query, int docid, EmotionType emotionType, HashMap<String, Integer> beginIndex, int endIndex){
-    List<Integer> idArray = new ArrayList<>();
-    int maxId = -1;
-    int sameDocId = -1;
-    boolean allQueryTermsInSameDoc = true;
-    for(String term : query._tokens){
-      if (!_dictionary.containsKey(term)) {
-        return new NextDoc( true ,null, beginIndex);
+  public NextDoc nextDocPhrase(QueryPhrase query, EmotionType emotionType, int endIndex){
+    Vector<String> queryTokens = new Vector<>();
+    for(String term: query._tokens){
+      queryTokens.add(term);
+    }
+    for(Vector<String> phraseTerm: query._phraseTokens){
+      for(String term: phraseTerm){
+        queryTokens.add(term);
       }
-      loadTermIfNotLoaded(term, emotionType);
-      idArray.add(next(term,docid, emotionType, beginIndex, endIndex));
     }
 
-    for (Vector<String> phraseTerms : query._phraseTokens) {
-      idArray.add(nextForPhrase(phraseTerms, docid, emotionType, beginIndex, endIndex));
-    }
+    NextDoc nextDoc = nextDocIndividualTokens(queryTokens,emotionType,endIndex);
 
-    for(int id : idArray){
-      if(id == -1){
-        return new NextDoc( endSearch,null, beginIndex);
+    if(nextDoc.documnets != null){
+      Vector<Document> documents = new Vector<>();
+      for(Document document: nextDoc.documnets){
+        if(checkConsecutivePhrase(query._phraseTokens,emotionType,document._docid)){
+          documents.add(document);
+        }
       }
-      if(sameDocId == -1){
-        sameDocId = id;
+      if (documents.size()<1){
+        return new NextDoc(nextDoc.stopRepeat,null);
+      } else {
+        return new NextDoc(nextDoc.stopRepeat, documents);
       }
-      if(id != sameDocId){
-        allQueryTermsInSameDoc = false;
-      }
-      if(id > maxId){
-        maxId = id;
-      }
+    } else {
+      return new NextDoc(nextDoc.stopRepeat,null);
     }
-    if(allQueryTermsInSameDoc){
-      return new NextDoc( endSearch ,_documents.get(sameDocId), beginIndex);
-    }
-    return nextDocPhrase(query, maxId-1, emotionType, beginIndex, endIndex);
   }
 
-  private int nextForPhrase(Vector<String> phraseTerms, int docid, EmotionType emotionType, HashMap<String, Integer> beginIndex, int endIndex) {
-    Document docForPhrase = nextDocIndividualTokens(phraseTerms, docid, emotionType, beginIndex, endIndex).doc;
-    if (docForPhrase == null) {
-      return -1;
+  private boolean checkConsecutivePhrase(Vector<Vector<String>> phraseTerms, EmotionType emotionType ,int docid){
+    boolean contains = true;
+    HashSet<Integer> storePhrasePositionSet = new HashSet<>();
+    for(Vector<String> phraseTerm: phraseTerms){
+      if(!phraseExists(phraseTerm,docid,emotionType)){
+        contains = false;
+        break;
+      }
     }
+    return contains;
+  }
 
-    Map<String, Vector<Integer>> termPositionMap = getTermPositionMapForDoc(phraseTerms, docForPhrase._docid, emotionType, beginIndex, endIndex);
-
-    String firstTerm = phraseTerms.get(0);
+  private boolean phraseExists(Vector<String> phraseTerm, int docid, EmotionType emotionType) {
+    HashMap<String,Vector<Integer>> termPositionMap = getTermPositionMap(phraseTerm,emotionType,docid);
+    String firstTerm = phraseTerm.get(0);
     for (int firstPos : termPositionMap.get(firstTerm)) {
       int i;
-      for (i = 1; i < phraseTerms.size(); i++) {
-        if (!termPositionMap.get(phraseTerms.get(i)).contains(firstPos + i)) {
+      for (i = 1; i < phraseTerm.size(); i++) {
+        if (!termPositionMap.get(phraseTerm.get(i)).contains(firstPos + i)) {
           break;
         }
       }
-      if (i == phraseTerms.size()) {
-        return docForPhrase._docid;
+      if (i == phraseTerm.size()) {
+        return true;
       }
     }
-
-    return nextForPhrase(phraseTerms, docForPhrase._docid, emotionType, beginIndex, endIndex);
+    return  false;
   }
 
-  private Map<String, Vector<Integer>> getTermPositionMapForDoc(Vector<String> phraseTerms, int docForPhrase, EmotionType emotionType, HashMap<String, Integer> beginIndex, int endIndex) {
-    Map<String, Vector<Integer>> termPosMap = new HashMap<>();
-
-    Vector<Integer> posList = new Vector<>();
-    for (String term : phraseTerms) {
-      int docPos = linearSearchResultIndex(term, docForPhrase - 1, emotionType, beginIndex, endIndex);
-      Vector<Integer> postingListforTerm = getPostingListforTerm(term, emotionType);
-      for (int i = 0 ; i < postingListforTerm.get(docPos + 1) ; i++) {
-        posList.add(postingListforTerm.get(docPos + 2 + i));
-      }
-      termPosMap.put(term, posList);
-    }
-
-    return termPosMap;
-  }
-
-  public int next(String queryTerm, int docid, EmotionType emotionType, HashMap<String, Integer> beginIndex, int endIndex){
-    int linearSearchResultIndex = linearSearchResultIndex(queryTerm, docid, emotionType, beginIndex, endIndex);
-    if (linearSearchResultIndex == -1)
-      return -1;
-
-    return getPostingListforTerm(queryTerm, emotionType).get(linearSearchResultIndex);
-  }
-
-  private int linearSearchResultIndex(String term, int docid, EmotionType emotionType, HashMap<String, Integer> beginIndex, int endIndex) {
-    endSearch = false;
-    Vector <Integer> PostingList = getPostingListforTerm(term, emotionType);
-    Vector <Integer> SkipList = getSkipListforTerm(term, emotionType);
-
-    if(docid == -1){
-      return SkipList.get(0);
-    }
-
-    for(int i=0; i<=endIndex && i<SkipList.size(); i++){
-        if (PostingList.get(SkipList.get(i)) == docid){
-          return SkipList.get(i+1);
+  private HashMap<String, Vector<Integer>> getTermPositionMap(Vector<String> phraseTerm, EmotionType emotionType ,int docid){
+    HashMap<String,Vector<Integer>> termPositionMap= new HashMap<>();
+    for(String term: phraseTerm) {
+      Vector<Integer> PostingList = getPostingListforTerm(term, emotionType);
+      Vector<Integer> termPositionVector = new Vector<>();
+      int j = 0;
+      for (; j < PostingList.size() - 1; j += PostingList.get(j + 1) + 2) {
+        if (PostingList.get(j) == docid) {
+          break;
         }
+      }
+      for (int i = 0; i < PostingList.get(j + 1); i++) {
+        termPositionVector.add(PostingList.get(j + 2 + i));
+      }
+      termPositionMap.put(term, termPositionVector);
     }
-
-    if(endIndex >= SkipList.size() -1){
-      endSearch = true;
-    }
-    return -1;
+    return termPositionMap;
   }
-*/
+
   private Vector<Integer> getPostingListforTerm(String term, EmotionType emotionType){
     return getPostingByEmotion(emotionType).get(_dictionary.get(term));
   }
