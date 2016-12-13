@@ -8,7 +8,7 @@ import edu.nyu.cs.cs2580.SearchEngine.Options;
 /**
  * Created by naman on 12/6/2016.
  */
-public class RankerFavoriteForEmotion extends Ranker{
+public class  RankerFavoriteForEmotion extends Ranker{
     public RankerFavoriteForEmotion(Options options,
                                     CgiArguments arguments, Indexer indexer) {
         super(options, arguments, indexer);
@@ -20,7 +20,7 @@ public class RankerFavoriteForEmotion extends Ranker{
         Queue<ScoredDocument> rankQueue = new PriorityQueue<ScoredDocument>();
         int threshold = Integer.parseInt(_options._postingThreshold);
         int multiplier = Integer.parseInt(_options._multiplierForThreshold);
-        int endIndex = threshold * multiplier;
+        int endIndex = threshold;
         int docFetched = 0;
         HashSet<Document> match = new HashSet<>();
         Vector<ScoredDocument> intermediateResult = new Vector<>();
@@ -30,7 +30,10 @@ public class RankerFavoriteForEmotion extends Ranker{
             if (nextDoc.documnets != null) {
                 for (Document doc : nextDoc.documnets) {
                     docFetched++;
-                    rankQueue.add(scoreDocument(doc, query));
+                    if (!match.contains(doc)) {
+                        match.add(doc);
+                        rankQueue.add(scoreDocument(doc, query));
+                    }
                     if (rankQueue.size() > (numResults * query._pagination) + 1) {
                         rankQueue.poll();
                     }
@@ -42,13 +45,12 @@ public class RankerFavoriteForEmotion extends Ranker{
                     CgiArguments.moreDocFlag = false;
                 }
 
+                docFetched = 0;
+
                 Vector<ScoredDocument> results = new Vector<ScoredDocument>();
                 ScoredDocument scoredDoc = null;
                 while ((scoredDoc = rankQueue.poll()) != null) {
-                    if (!match.contains(scoredDoc._doc)) {
-                        match.add(scoredDoc._doc);
                         results.add(scoredDoc);
-                    }
                 }
 
                 Collections.sort(results, Collections.reverseOrder());
@@ -56,17 +58,18 @@ public class RankerFavoriteForEmotion extends Ranker{
                 for (int i = 0; i <= numResults * query._pagination && i < results.size(); i++) {
                     intermediateResult.add(results.get(i));
                 }
-
+                threshold = threshold * multiplier;
                 if (intermediateResult.size() >= (numResults * query._pagination) + 1 || nextDoc.stopRepeat == true) {
                     break;
                 } else {
-                    endIndex = threshold * ++multiplier;
+                    endIndex = threshold;
                 }
             } else {
+                threshold *= multiplier;
                 if (intermediateResult.size() >= (numResults * query._pagination) + 1 || nextDoc.stopRepeat == true) {
                     break;
                 } else {
-                    endIndex = threshold * ++multiplier;
+                    endIndex = threshold;
                 }
             }
         }

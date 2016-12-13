@@ -673,7 +673,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     }
 
     if (!_dictionary.containsKey(queryTokens.get(0))) {
-      return null;
+      return new NextDoc(true, null);
     }
 
     loadTermIfNotLoaded(queryTokens.get(0), emotionType);
@@ -698,7 +698,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
 
     for(int i=1; i<queryTokens.size(); i++) {
       if (!_dictionary.containsKey(queryTokens.get(i))) {
-        return null;
+        return new NextDoc(true, null);
       }
       loadTermIfNotLoaded(queryTokens.get(i), emotionType);
       PostingList = getPostingListforTerm(queryTokens.get(i), emotionType);
