@@ -119,6 +119,7 @@ $( document ).ready(function() {
                     
         $("#searchBar").keypress(function (e) {
             if (e.which == 13) {
+	            $("#pagination").val("1");
                     $("#searchKey").val($("#searchBar").val());
                     $('#searchForm').submit();
                     return false;
