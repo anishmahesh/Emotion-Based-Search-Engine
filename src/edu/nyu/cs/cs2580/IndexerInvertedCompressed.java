@@ -672,6 +672,10 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
       return new NextDoc(endSearch,null);
     }
 
+    if (!_dictionary.containsKey(queryTokens.get(0))) {
+      return null;
+    }
+
     loadTermIfNotLoaded(queryTokens.get(0), emotionType);
     Vector <Integer> PostingList = getPostingListforTerm(queryTokens.get(0), emotionType);
     Vector <Integer> SkipList = getSkipListforTerm(queryTokens.get(0), emotionType);
@@ -693,6 +697,9 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
     }
 
     for(int i=1; i<queryTokens.size(); i++) {
+      if (!_dictionary.containsKey(queryTokens.get(i))) {
+        return null;
+      }
       loadTermIfNotLoaded(queryTokens.get(i), emotionType);
       PostingList = getPostingListforTerm(queryTokens.get(i), emotionType);
       SkipList = getSkipListforTerm(queryTokens.get(i), emotionType);
