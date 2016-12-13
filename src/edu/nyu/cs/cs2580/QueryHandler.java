@@ -158,7 +158,7 @@ class QueryHandler implements HttpHandler {
       response.append(response.length() > 0 ? "\n" : "");
       response.append(doc.asHtmlResult());
     }
-    response.append(htmlOutput.getFooter());
+    response.append(htmlOutput.getFooter(CgiArguments.moreDocFlag));
     response.append(response.length() > 0 ? "\n" : "No result returned!");
   }
 

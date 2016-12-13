@@ -49,6 +49,7 @@ public class HTMLOutputFormatter {
                 "                        <link href=\"static/css/bootstrap.min.css\" rel=\"stylesheet\"/>\n" +
                 "                        <link href=\"static/css/card.css\" rel=\"stylesheet\"/>\n" +
                 "                        <link href=\"static/css/home.css\" rel=\"stylesheet\"/>\n" +
+                "                        <link href=\"static/css/page.css\" rel=\"stylesheet\"/>\n" +
                 "                        <!-- Custom CSS -->\n" +
                 "                        <link href=\"static/css/style2.css\" rel=\"stylesheet\"/>\n" +
                 "                        \n" +
@@ -63,9 +64,9 @@ public class HTMLOutputFormatter {
                 "                        <form id=\"searchForm\" action=\"\" method=\"get\"> +\n" +
                 "                            <input type=\"hidden\" id=\"searchKey\" name=\"query\" />\n" +
                 "                            <input type=\"hidden\" id=\"num\" name=\"num\" />\n" +
-                "                            <input type=\"hidden\" id=\"fromIndex\" name=\"fromIndex\" />\n" +
                 "                            <input type=\"hidden\" id=\"format\" name=\"format\" />\n" +
                 "                            <input type=\"hidden\" id=\"emotion\" name=\"emotion\" />\n" +
+                "                            <input type=\"hidden\" id=\"pagination\" name=\"pagination\" />\n" +
                 "                        </form>\n" +
                 "    </head>\n" +
                 "    <!-- The #page-top ID is part of the scrolling feature - the data-spy and data-target are part of the built-in Bootstrap scrollspy function -->\n" +
@@ -137,9 +138,33 @@ public class HTMLOutputFormatter {
         return header;
     }
 
-    public String getFooter(){
+    public String getFooter(boolean hasNextPage){
         String footer = new String(
-                "    </section>\n" +
+                "            <div class=\"row\" style=\"margin-top:20px;margin-bottom:10px\">\n" +
+                        "<div class=\"wrapper\" style=\"text-align:center\">");
+
+        footer +=       "\t<div class=\"row\">\n" +
+                "\t\t<div class=\"wrapper\" id=\"prev-page\">\n" +
+                "\t\t\t<div class=\"row\">\n" +
+                "\t\t\t\t<i class=\"fa fa-chevron-left fa-2x\" style\"margin-left:10px;\"></i>\n" +
+                "\t\t\t</div>\n" +
+                "\t\t\t<div class=\"row\">\n" +
+                "\t\t\t\tPrev\n" +
+                "\t\t\t</div>\n" +
+                "\t\t</div>\n";
+
+                if(hasNextPage) {
+                    footer += "\t\t<div class=\"wrapper\" id=\"next-page\">\n" +
+                            "\t\t\t<div class=\"row\">\n" +
+                            "\t\t\t\t<i class=\"fa fa-chevron-right fa-2x\" style\"margin-left:10px;\"></i>\n" +
+                            "\t\t\t</div>\n" +
+                            "\t\t\t<div class=\"row\">\n" +
+                            "\t\t\t\tNext\n" +
+                            "\t\t\t</div>\n" +
+                            "\t\t</div>\n";
+                }
+                footer+= "\t</div>"+
+                        "    </section>\n" +
                         "<!-- Contact Section -->\n" +
                 "    <section id=\"contact\" class=\"contact-section\" style+\"width:100%\">\n" +
                 "            <div class=\"row\">\n" +
@@ -163,7 +188,7 @@ public class HTMLOutputFormatter {
                         "\n" +
                 "</body>\n" +
                 "\n" +
-                "</html>");
+                "</html>";
         return footer;
     }
 
@@ -200,9 +225,8 @@ public class HTMLOutputFormatter {
                 "                        <form id=\"searchForm\" action=\"search\" method=\"get\"> +\n" +
                 "                            <input type=\"hidden\" id=\"searchKey\" name=\"query\" />\n" +
                 "                            <input type=\"hidden\" id=\"num\" name=\"num\" />\n" +
-                "                            <input type=\"hidden\" id=\"fromIndex\" name=\"fromIndex\" />\n" +
-                "                            <input type=\"hidden\" id=\"format\" name=\"format\" />\n" +
                 "                            <input type=\"hidden\" id=\"emotion\" name=\"emotion\" />\n" +
+                "                            <input type=\"hidden\" id=\"pagination\" name=\"pagination\" />\n" +
                 "                            <input type=\"hidden\" id=\"format\" name=\"format\" value=\"html\" />\n" +
                 "                        </form>\n" +
                 "                        </head>\n" +

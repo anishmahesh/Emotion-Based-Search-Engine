@@ -52,6 +52,7 @@ $( document ).ready(function() {
         var num = getUrlParameter("num");
         var fromIndex = getUrlParameter("fromIndex");
         var emo = getUrlParameter("emotion");
+        var pagination = getUrlParameter("pagination");
 
         $("#format").val("html");
         if (num == ""){
@@ -59,18 +60,22 @@ $( document ).ready(function() {
         }else{
             $("#num").val(num);
         }
+
+	if(pagination == ""){
+	    $("#pagination").val("1");
+	}else{
+	    if(parseInt(pagination)>1)
+	        document.getElementById("prev-page").style.display = "inline-block";
+            $("#pagination").val(parseInt(pagination)+1);
+	}
                     
         if (query == ""){
             $("#searchBar").val("");
         }else{
+	    $("#searchKey").val(query);
             $("#searchBar").val(query);
         }
                     
-        if (fromIndex ===  ""){
-            $("#fromIndex").val(0);
-        }else{
-            $("#fromIndex").val(fromIndex);
-        }
                     
         if(emo == ""){
             $("#emotion").val("funny");
@@ -83,10 +88,19 @@ $( document ).ready(function() {
                 $("#emotion").val(emo);
         }
 
-        $( "#submitSearch" ).click(function() {
+        $("#submitSearch").click(function() {
+	    $("#pagination").val("1");
             $("#searchKey").val($("#searchBar").val());
             $( "#searchForm" ).submit();
         });
+
+	$("#next-page").click(function() {
+	    $( "#searchForm" ).submit();
+	});
+
+	$("#prev-page").click(function() {
+	    window.history.back();
+	});
                     
         $( "#emo-funny" ).click(function() {
             $("#emotion").val("funny");

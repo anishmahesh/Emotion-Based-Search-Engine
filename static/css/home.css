@@ -219,4 +219,27 @@ button:focus {
     border:none;
 }
 
+#prev-page{
+    height:50px;
+    width:50px;
+    margin-right:60px;
+    display:none;
+    color:#95a5a6;
+    cursor:pointer;
+}
 
+#prev-page:hover{
+    color: #34495e;
+}
+
+#next-page{
+    height:50px;
+    width:50px;
+    color:#95a5a6;
+    display:inline-block;
+    cursor:pointer;
+}
+
+#next-page:hover{
+    color: #34495e;
+}
