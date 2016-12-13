@@ -66,6 +66,11 @@ public class  RankerFavoriteForEmotion extends Ranker{
                 }
             } else {
                 threshold *= multiplier;
+                if (docFetched > query._pagination * numResults) {
+                    CgiArguments.moreDocFlag = true;
+                } else {
+                    CgiArguments.moreDocFlag = false;
+                }
                 if (intermediateResult.size() >= (numResults * query._pagination) + 1 || nextDoc.stopRepeat == true) {
                     break;
                 } else {
