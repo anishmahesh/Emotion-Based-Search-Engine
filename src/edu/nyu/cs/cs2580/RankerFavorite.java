@@ -84,11 +84,13 @@ public class RankerFavorite extends Ranker {
 
     //Adding weightage to the title
     String[] tokens = doc.getTitle().toLowerCase().split(" ");
+    String titleTokens = TextProcessor.regexRemoval(tokens.toString());
     System.out.println();
 
     for(String queryToken : query._tokens){
-      if(Arrays.asList(tokens).contains(queryToken.toLowerCase())){
-        queryLikelyhoodProbability += 0.01;
+      queryToken = TextProcessor.regexRemoval(queryToken.toLowerCase());
+      if(titleTokens.contains(queryToken.toLowerCase())){
+        queryLikelyhoodProbability += 1.33 * queryLikelyhoodProbability;
       }
     }
     return new ScoredDocument(doc, queryLikelyhoodProbability);
