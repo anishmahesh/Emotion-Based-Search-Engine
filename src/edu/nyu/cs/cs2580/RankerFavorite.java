@@ -88,7 +88,6 @@ public class RankerFavorite extends Ranker {
     System.out.println();
 
     for(String queryToken : query._tokens){
-      queryToken = TextProcessor.regexRemoval(queryToken.toLowerCase());
       if(titleTokens.contains(queryToken.toLowerCase())){
         queryLikelyhoodProbability += 1.33 * queryLikelyhoodProbability;
       }
