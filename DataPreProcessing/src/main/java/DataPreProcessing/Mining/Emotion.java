@@ -5,23 +5,27 @@ import com.ibm.watson.developer_cloud.alchemy.v1.model.DocumentEmotion;
 import com.ibm.watson.developer_cloud.alchemy.v1.model.DocumentSentiment;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by naman on 12/2/2016.
  */
 public class Emotion {
 
-    public void fileResult(String key) throws IOException {
-        String dir = "data/crawled";
+    public void fileResult(Vector<String> keys) throws IOException {
+        String dir = "data/HuffingpostOpinion";
         File[] fileNames = new File(dir).listFiles();
         HTMLParse htmlParse = new HTMLParse();
         Map<String, DocumentEmotion> fileEmotion = new HashMap();
+        int i=0,j=0;
+        String key = keys.get(0);
         for (File file : fileNames) {
             try {
+                i++;
+                if(i>995){
+                    i=0;
+                    key = keys.get(++j);
+                }
                 if (file.isFile() && !file.isHidden()) {
                     DocTextFields dtf = getDocTextFields(file);
                     String text = dtf.title + "\n" + dtf.bodyText;
@@ -31,7 +35,7 @@ public class Emotion {
 
             }
         }
-        String outputPath =   "data/emotions.tsv";
+        String outputPath =   "data/HuffingpostOpinion/emotions.tsv";
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputPath));
         for(String docName : fileEmotion.keySet()) {
             DocumentEmotion.Emotion emotions = fileEmotion.get(docName).getEmotion();
@@ -74,7 +78,7 @@ public class Emotion {
         AlchemyLanguage service = new AlchemyLanguage();
         service.setApiKey(key);
 
-        Map<String,Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put(AlchemyLanguage.TEXT, text);
         DocumentEmotion emotion = service.getEmotion(params).execute();
         DocumentSentiment sentiment = service.getSentiment(params).execute();
