@@ -200,7 +200,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
               idx += occ + 2;
             }
 
-            Collections.sort(docIds, Collections.reverseOrder(new joyComparator()));
+            Collections.sort(docIds, Collections.reverseOrder(new JoyComparator()));
 
             for (Integer docId : docIds) {
               joyPost.add(docId);
@@ -252,13 +252,13 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
 
   }
 
-  class joyComparator implements Comparator<Integer> {
+  class JoyComparator implements Comparator<Integer> {
 
     @Override
     public int compare(Integer docId1, Integer docId2) {
-      if (_documents.get(docId1).getJoy() >= _documents.get(docId2).getJoy())
-        return 1;
-      else return -1;
+      if (_documents.get(docId1).getJoy() == _documents.get(docId2).getJoy())
+        return 0;
+      return _documents.get(docId1).getJoy() > _documents.get(docId2).getJoy() ? 1 : -1;
     }
   }
 
@@ -266,9 +266,9 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
 
     @Override
     public int compare(Integer docId1, Integer docId2) {
-      if (_documents.get(docId1).getSadness() >= _documents.get(docId2).getSadness())
-        return 1;
-      else return -1;
+      if (_documents.get(docId1).getSadness() == _documents.get(docId2).getSadness())
+        return 0;
+      return _documents.get(docId1).getSadness() > _documents.get(docId2).getSadness() ? 1 : -1;
     }
   }
 
@@ -321,6 +321,8 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
 
       File docFile = new File(docPath);
 
+      if (!docFile.exists()) continue;
+
       DocumentIndexed doc = new DocumentIndexed(_numDocs);
       ++_numDocs;
 
@@ -336,7 +338,7 @@ public class IndexerInvertedCompressed extends Indexer implements Serializable {
       doc.setJoy(Double.parseDouble(cols.get(4)));
       doc.setSadness(Double.parseDouble(cols.get(5)));
 
-      processDocument(docTextFields.bodyText, doc);
+      processDocument(docTextFields.bodyText + " " + docTextFields.title, doc);
 
       _documents.add(doc);
 

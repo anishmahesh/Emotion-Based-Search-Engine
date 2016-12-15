@@ -260,7 +260,7 @@ public class IndexerForFunny extends Indexer implements Serializable {
                 doc.setTitle(docTextFields.title);
                 doc.setUrl(docTextFields.url);
 
-                processDocument(docTextFields.bodyText, doc);
+                processDocument(docTextFields.bodyText + " " + docTextFields.title, doc);
 
                 _documents.add(doc);
 
