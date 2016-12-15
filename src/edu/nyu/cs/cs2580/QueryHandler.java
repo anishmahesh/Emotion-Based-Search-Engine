@@ -182,7 +182,6 @@ class QueryHandler implements HttpHandler {
 
     System.out.println("URI Path ::: "+uriPath);
     if (uriPath.equals("/fill")) {
-      System.out.println("\n\nFound Fill\n\n");
       AutoCompleteResponse acr = new AutoCompleteResponse();
       CgiArguments cgiArgs = new CgiArguments(uriQuery.toLowerCase());
 
