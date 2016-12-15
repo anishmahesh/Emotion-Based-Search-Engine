@@ -78,13 +78,16 @@ $( document ).ready(function() {
                     
                     
         if(emo == ""){
-            $("#emotion").val("funny");
+            $("#emotion").val("joy");
         }else{
                 if(emo == "joy"){
                     document.getElementById("btn-emo").src="static/images/happy.png";
                 }else if(emo == "sad"){
                     document.getElementById("btn-emo").src="static/images/sad.png";
-                }
+                }else if(emo == "funny"){
+                    document.getElementById("btn-emo").src="static/images/funny.png";
+                    }
+    
                 $("#emotion").val(emo);
         }
 

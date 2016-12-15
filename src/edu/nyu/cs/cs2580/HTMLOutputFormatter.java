@@ -112,7 +112,7 @@ public class HTMLOutputFormatter {
                 "                        <!-- container div for reaction system -->\n" +
                 "                        <span class=\"like-btn\"> <!-- Default like button -->\n" +
                 "                            <span id=\"wrapper\" style=\"margin-left:7px;margin-right:7px\">\n" +
-                "                                <img src=\"static/images/funny.png\" id=\"btn-emo\" height=24px width=24px>\n" +
+                "                                <img src=\"static/images/happy.png\" id=\"btn-emo\" height=24px width=24px>\n" +
                 "                                    <span>\n" +
                 "                                        <!-- Default like button text,(Like, wow, sad..) default:Like  -->\n" +
                 "                                        <ul class=\"reactions-box\">\n" +
@@ -275,7 +275,7 @@ public class HTMLOutputFormatter {
                 "                    <!-- container div for reaction system -->\n" +
                 "                    <span class=\"like-btn\"> <!-- Default like button -->\n" +
                 "                        <span id=\"wrapper\" style=\"margin-left:7px;margin-right:7px\">\n" +
-                "                            <img src=\"static/images/funny.png\" id=\"btn-emo\" height=24px width=24px>\n" +
+                "                            <img src=\"static/images/happy.png\" id=\"btn-emo\" height=24px width=24px>\n" +
                 "                                <span>\n" +
                 "                                    <!-- Default like button text,(Like, wow, sad..) default:Like  -->\n" +
                 "                                    <ul class=\"reactions-box\">\n" +
