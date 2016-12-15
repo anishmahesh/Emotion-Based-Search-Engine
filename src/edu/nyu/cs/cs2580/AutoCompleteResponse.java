@@ -33,7 +33,8 @@ public class AutoCompleteResponse {
             int count=0;
             //results = sortByValue(results);
             if(results.size() != 0){
-                for(String result : results.keySet()){
+                Map<String,Integer> res = sortByComparator(results,false);
+                for(String result : res.keySet()){
                     count++;
                     result = result.replace("+"," ");
                     result = result.substring(0, 1).toUpperCase() + result.substring(1);
@@ -72,24 +73,28 @@ public class AutoCompleteResponse {
         return results;
     }
 
-    public static <K, V extends Comparable<? super V>> Map<K, V>
-    sortByValue( Map<K, V> map )
-    {
-        List<Map.Entry<K, V>> list =
-                new LinkedList<Map.Entry<K, V>>( map.entrySet() );
-        Collections.sort( list, new Comparator<Map.Entry<K, V>>()
-        {
-            public int compare( Map.Entry<K, V> o1, Map.Entry<K, V> o2 )
-            {
-                return (o1.getValue()).compareTo( o2.getValue() );
-            }
-        } );
+    private static Map<String, Integer> sortByComparator(Map<String, Integer> map, final boolean order) {
+        List<Map.Entry<String, Integer>> list = new LinkedList<Map.Entry<String, Integer>>(map.entrySet());
 
-        Map<K, V> result = new LinkedHashMap<K, V>();
-        for (Map.Entry<K, V> entry : list)
-        {
-            result.put( entry.getKey(), entry.getValue() );
+        // Sorting the list based on values
+        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
+            public int compare(Map.Entry<String, Integer> o1,
+                               Map.Entry<String, Integer> o2) {
+                if (order) {
+                    return o1.getValue().compareTo(o2.getValue());
+                }
+                else {
+                    return o2.getValue().compareTo(o1.getValue());
+                }
+            }
+        });
+
+        // Maintaining insertion order with the help of LinkedList
+        Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
+        for (Map.Entry<String, Integer> entry : list) {
+            sortedMap.put(entry.getKey(), entry.getValue());
         }
-        return result;
+
+        return sortedMap;
     }
 }
