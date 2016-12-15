@@ -14,13 +14,12 @@ public class HTMLOutputFormatter {
                 "<a href=\"" +url+"\">\n"+
                 "                                <span class=\"card-title\">"+title+"</span>\n" +
                 "</a>"+
-                "                                <div class=\"card-content\">\n" +
-                "                                    <p> "+startingText+"</p>\n" +
+                "                                <div class=\"card-content\" style=\"color:#229955;font-size:0.9em\">\n" +
+                "                                    <p> "+url+"</p>\n" +
                 "                                </div>\n" +
                 "                                \n" +
                 "                                <div class=\"card-action\">\n" +
                 "                                    <a href=\"#\" target=\"new_blank\"><i class=\"fa fa-eye\"></i> "+numViews+" </a>\n" +
-                "                                    <a href=\"#\" target=\"new_blank\"><i class=\"fa fa-slack\"></i>&nbsp;"+score+"</a>\n" +
                 "                                    <a href=\"#\" target=\"new_blank\"><i class=\"fa fa-folder\"></i>&nbsp;"+docId+"</a>\n" +
                 "                                </div>\n" +
                 "                            </div>\n" +
