@@ -13,7 +13,7 @@ import java.util.*;
 public class Emotion {
 
     public void fileResult(Vector<String> keys) throws IOException {
-        String dir = "data/HuffingpostOpinion";
+        String dir = "data/corpus";
         File[] fileNames = new File(dir).listFiles();
         HTMLParse htmlParse = new HTMLParse();
         Map<String, DocumentEmotion> fileEmotion = new HashMap();
@@ -35,7 +35,7 @@ public class Emotion {
 
             }
         }
-        String outputPath =   "data/HuffingpostOpinion/emotions.tsv";
+        String outputPath =   "data/emotions.tsv";
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputPath));
         for(String docName : fileEmotion.keySet()) {
             DocumentEmotion.Emotion emotions = fileEmotion.get(docName).getEmotion();

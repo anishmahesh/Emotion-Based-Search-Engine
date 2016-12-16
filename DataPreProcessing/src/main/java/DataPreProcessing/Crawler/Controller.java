@@ -34,13 +34,13 @@ public class Controller {
      * crawlStorageFolder is a folder where intermediate crawl data is
      * stored.
      */
-        String crawlStorageFolder = "./crawl/data/intermediate/";
+        String crawlStorageFolder = "./data/intermediate/";
 
     /*
      * numberOfCrawlers shows the number of concurrent threads that should
      * be initiated for crawling.
      */
-        int numberOfCrawlers = 50;
+        int numberOfCrawlers = 20;
 
         CrawlConfig config = new CrawlConfig();
 
@@ -48,7 +48,9 @@ public class Controller {
         //config.setMaxPagesToFetch(100);
 
         config.setPolitenessDelay(200);
-        config.setMaxDepthOfCrawling(1500);
+
+        //set the max depth of the crawler here
+        config.setMaxDepthOfCrawling(0);
 
 
     /*
@@ -78,16 +80,12 @@ public class Controller {
      * which are found in these pages
      */
 
-//        BufferedReader reader = new BufferedReader(new FileReader("/Users/anish/Desktop/good-urls-1"));
-//        String line;
-//        while ((line = reader.readLine()) != null) {
-//            controller.addSeed(line);
-////            System.out.println(line);
-//        }
-//        System.out.println("Added the seeds");
-        controller.addSeed("http://www.goodnewsnetwork.org/");
-        //controller.addSeed("http://www.ics.uci.edu/~lopes/");
-        //controller.addSeed("http://www.ics.uci.edu/~welling/");
+        BufferedReader reader = new BufferedReader(new FileReader("path/to/file/with/urls"));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            controller.addSeed(line);
+        }
+        System.out.println("Added the seeds");
 
     /*
      * Start the crawl. ie code

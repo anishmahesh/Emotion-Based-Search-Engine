@@ -37,10 +37,7 @@ public class App extends WebCrawler {
         String href = url.getURL().toLowerCase();
 
         // Only accept the url if it is in the "theoninon" domain and protocol is "http".
-        return !FILTERS.matcher(href).matches()
-                && href.contains("goodnewsnetwork.org");
-        //return href.contains("unrealtimes");
-        //return true;
+        return !FILTERS.matcher(href).matches();
     }
 
     /**
@@ -79,8 +76,6 @@ public class App extends WebCrawler {
                     if(htmlParseData.getTitle()!=null) {
                         if (htmlParseData.getText().length() > 3000 && !visited.contains(url)) {
                             String title = htmlParseData.getTitle();
-                            if (title != null)
-                                title = title.replace(" - Good News Network", "");
                             visited.add(url);
                             List<String> titleWords = stringTokenizer(title);
                             StringBuilder fileName = new StringBuilder();
@@ -92,7 +87,7 @@ public class App extends WebCrawler {
                                 i++;
                             }
                             Writer writer = new BufferedWriter(new OutputStreamWriter(
-                                    new FileOutputStream("./crawl/data/joy2/" + fileName.substring(0, fileName.length()-1) + ".txt"), "utf-8"));
+                                    new FileOutputStream("./data/corpus/" + fileName.substring(0, fileName.length()-1) + ".txt"), "utf-8"));
                             writer.write(title + "\n" + url + "\n" + OneLiner.getMainText(htmlParseData.getHtml()));
                             writer.close();
                         }

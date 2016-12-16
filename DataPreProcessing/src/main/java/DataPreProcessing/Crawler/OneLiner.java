@@ -25,6 +25,8 @@ import java.net.URL;
 
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
+import de.l3s.boilerpipe.extractors.CommonExtractors;
+import de.l3s.boilerpipe.extractors.DefaultExtractor;
 
 /**
  * Demonstrates how to use Boilerpipe to get the main content as plain text. Note: In real-world
@@ -35,8 +37,8 @@ import de.l3s.boilerpipe.extractors.ArticleExtractor;
 public class OneLiner {
     public static String getMainText(String htmlText) throws BoilerpipeProcessingException {
         String parsedText = ArticleExtractor.INSTANCE.getText(htmlText);
-        //String parsedText2 = DefaultExtractor.INSTANCE.getText(htmlText);
-        //String parsedText3 = CommonExtractors.CANOLA_EXTRACTOR.getText(htmlText);
+        //String parsedText = DefaultExtractor.INSTANCE.getText(htmlText);
+        //String parsedText = CommonExtractors.CANOLA_EXTRACTOR.getText(htmlText);
         return parsedText;
     }
 
