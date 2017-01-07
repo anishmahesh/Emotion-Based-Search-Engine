@@ -80,6 +80,13 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.2</version>
         </dependency>
+            <dependency>
+                <groupId>nekohtml</groupId>
+                <artifactId>nekohtml</artifactId>
+                <scope>system</scope>
+                <version>1.0</version>
+                <systemPath>${basedir}/src/main/resources/nekohtml.jar</systemPath>
+            </dependency>
     </dependencies>
     <build>
         <plugins>
